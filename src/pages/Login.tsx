@@ -17,12 +17,18 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      if (session?.user) navigate("/", { replace: true });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        navigate("/", { replace: true });
+      }
     });
+    
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) navigate("/", { replace: true });
+      if (session?.user) {
+        navigate("/", { replace: true });
+      }
     });
+    
     return () => subscription.unsubscribe();
   }, [navigate]);
 
@@ -34,11 +40,16 @@ const Login = () => {
       toast({
         title: "Use your college email",
         description: "Only addresses ending with @bennett.edu.in are allowed.",
+        variant: "destructive"
       });
       return;
     }
-    if (password.length < 6) {
-      toast({ title: "Password too short", description: "Use at least 6 characters." });
+    if (password.length < 8) {
+      toast({ 
+        title: "Password too short", 
+        description: "Use at least 8 characters.",
+        variant: "destructive" 
+      });
       return;
     }
 
@@ -46,24 +57,59 @@ const Login = () => {
     try {
       if (mode === "signup") {
         const redirectUrl = `${window.location.origin}/`;
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: redirectUrl },
+          options: { 
+            emailRedirectTo: redirectUrl,
+            data: {
+              display_name: email.split('@')[0]
+            }
+          },
         });
         if (error) throw error;
-        toast({
-          title: "Check your inbox",
-          description: "We sent a verification link to your college email.",
-        });
+        
+        if (data.user && !data.user.email_confirmed_at) {
+          toast({
+            title: "Check your inbox",
+            description: "We sent a verification link to your college email.",
+          });
+        } else {
+          toast({
+            title: "Account created!",
+            description: "You can now log in.",
+          });
+          setMode("login");
+        }
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        if (data.session?.user) navigate("/", { replace: true });
+        
+        if (data.session?.user) {
+          toast({
+            title: "Welcome back!",
+            description: "You're now logged in.",
+          });
+          navigate("/", { replace: true });
+        }
       }
     } catch (err: any) {
-      const msg = err?.message || "Something went wrong";
-      toast({ title: "Authentication error", description: msg });
+      let msg = "Something went wrong";
+      if (err.message.includes("Invalid login credentials")) {
+        msg = "Invalid email or password";
+      } else if (err.message.includes("Email not confirmed")) {
+        msg = "Please check your email and click the verification link";
+      } else if (err.message.includes("User already registered")) {
+        msg = "This email is already registered. Try logging in instead.";
+      } else {
+        msg = err.message;
+      }
+      
+      toast({ 
+        title: "Authentication error", 
+        description: msg,
+        variant: "destructive" 
+      });
     } finally {
       setLoading(false);
     }
@@ -106,7 +152,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={6}
+                minLength={8}
               />
             </div>
             <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
