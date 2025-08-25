@@ -176,6 +176,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_seller_display_info: {
+        Args: { seller_uuid: string }
+        Returns: {
+          seller_name: string
+        }[]
+      }
       is_conversation_participant: {
         Args: { conv_id: string }
         Returns: boolean
