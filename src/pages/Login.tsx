@@ -56,12 +56,10 @@ const Login = () => {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const redirectUrl = `${window.location.origin}/`;
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { 
-            emailRedirectTo: redirectUrl,
             data: {
               display_name: email.split('@')[0]
             }
@@ -69,17 +67,28 @@ const Login = () => {
         });
         if (error) throw error;
         
-        if (data.user && !data.user.email_confirmed_at) {
-          toast({
-            title: "Check your inbox",
-            description: "We sent a verification link to your college email.",
-          });
-        } else {
-          toast({
-            title: "Account created!",
-            description: "You can now log in.",
-          });
-          setMode("login");
+        if (data.user) {
+          // Send custom welcome email
+          try {
+            await supabase.functions.invoke('send-confirmation-email', {
+              body: {
+                email: email,
+                confirmationUrl: `${window.location.origin}/`,
+                name: email.split('@')[0]
+              }
+            });
+            
+            toast({
+              title: "Welcome to BU_Basket!",
+              description: "Account created! Check your email for a welcome message.",
+            });
+          } catch (emailError) {
+            console.error('Error sending welcome email:', emailError);
+            toast({
+              title: "Account created!",
+              description: "Your account was created successfully. Welcome to BU_Basket!",
+            });
+          }
         }
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
