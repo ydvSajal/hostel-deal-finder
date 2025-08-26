@@ -19,6 +19,8 @@ const Sell = () => {
     price: '',
     description: ''
   });
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -39,6 +41,35 @@ const Sell = () => {
     }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setSelectedImages(files.slice(0, 3)); // Limit to 3 images
+    }
+  };
+
+  const uploadImages = async (listingId: string): Promise<string[]> => {
+    if (selectedImages.length === 0) return [];
+
+    const uploadPromises = selectedImages.map(async (file, index) => {
+      const fileName = `${currentUser.id}/${listingId}/${index}_${Date.now()}.${file.name.split('.').pop()}`;
+      
+      const { data, error } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, file);
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    });
+
+    return Promise.all(uploadPromises);
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -51,8 +82,10 @@ const Sell = () => {
       return;
     }
 
+    setUploading(true);
     try {
-      const { error } = await supabase
+      // First create the listing
+      const { data: listingData, error: listingError } = await supabase
         .from('listings')
         .insert({
           title: formData.title,
@@ -60,9 +93,27 @@ const Sell = () => {
           price: parseFloat(formData.price),
           description: formData.description,
           seller_id: currentUser.id
-        });
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (listingError) throw listingError;
+
+      // Then upload images if any
+      let imageUrls: string[] = [];
+      if (selectedImages.length > 0) {
+        imageUrls = await uploadImages(listingData.id);
+        
+        // Update the listing with the first image URL
+        if (imageUrls.length > 0) {
+          const { error: updateError } = await supabase
+            .from('listings')
+            .update({ image_url: imageUrls[0] })
+            .eq('id', listingData.id);
+
+          if (updateError) throw updateError;
+        }
+      }
 
       toast({
         title: "Listing created!",
@@ -76,6 +127,8 @@ const Sell = () => {
         description: error.message,
         variant: "destructive"
       });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -175,11 +228,27 @@ const Sell = () => {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">Images</label>
-            <input type="file" accept="image/*" multiple className="block w-full rounded-md border bg-background p-2" />
-            <p className="mt-1 text-xs text-muted-foreground">Image upload will be implemented in the next update.</p>
+            <label className="mb-1 block text-sm font-medium">Images (Max 3)</label>
+            <input 
+              type="file" 
+              accept="image/*" 
+              multiple 
+              onChange={handleImageChange}
+              className="block w-full rounded-md border bg-background p-2" 
+            />
+            {selectedImages.length > 0 && (
+              <div className="mt-2 flex gap-2 flex-wrap">
+                {selectedImages.map((file, index) => (
+                  <div key={index} className="text-xs text-muted-foreground">
+                    📷 {file.name}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          <Button type="submit" variant="hero" className="rounded-full">Publish Listing</Button>
+          <Button type="submit" variant="hero" className="rounded-full" disabled={uploading}>
+            {uploading ? "Publishing..." : "Publish Listing"}
+          </Button>
         </form>
       </main>
       <Footer />
