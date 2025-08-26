@@ -38,7 +38,9 @@ secure_email_change_enabled = false
 
 [auth.security]
 captcha_enabled = false
-password_strength_enabled = false
+captcha_provider = "hcaptcha"
+refresh_token_rotation_enabled = true
+manual_linking_enabled = false
 
 [edge_functions]
 [functions.send-confirmation-email]
