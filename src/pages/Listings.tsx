@@ -96,9 +96,9 @@ const Listings = () => {
                 )}
                 {currentUser && currentUser.id !== listing.seller_id && (
                   <div className="mt-3">
-                    <Button asChild size="sm" className="w-full">
+                    <Button asChild size="sm" className="w-full bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white hover:shadow-glow transition-all duration-300">
                       <Link to={`/chat?listing_id=${listing.id}`}>
-                        Chat with seller
+                        💬 Chat with seller
                       </Link>
                     </Button>
                   </div>

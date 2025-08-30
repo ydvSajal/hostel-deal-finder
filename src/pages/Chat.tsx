@@ -218,7 +218,7 @@ const Chat = () => {
           {messages.map((message) => {
             const isMe = message.sender_id === currentUser.id;
             return (
-              <div key={message.id} className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${isMe ? "ml-auto bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-primary-foreground" : "bg-secondary"}`}>
+              <div key={message.id} className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${isMe ? "ml-auto bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white" : "bg-secondary"}`}>
                 {message.content}
               </div>
             );
@@ -231,7 +231,7 @@ const Chat = () => {
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}
           />
-          <Button type="submit" variant="hero">Send</Button>
+          <Button type="submit" className="bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white hover:shadow-glow transition-all duration-300">Send</Button>
         </form>
       </main>
       <Footer />
