@@ -81,7 +81,7 @@ const Listings = () => {
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {listings.map((listing) => (
-              <article key={listing.id} className="rounded-xl border bg-card p-4 shadow-sm">
+              <article key={listing.id} className="rounded-xl border bg-card p-4 shadow-sm hover:shadow-lg transition-all duration-300">
                 <img
                   src={listing.image_url || "/placeholder.svg"}
                   loading="lazy"
@@ -94,15 +94,27 @@ const Listings = () => {
                 {listing.description && (
                   <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{listing.description}</p>
                 )}
-                {currentUser && currentUser.id !== listing.seller_id && (
-                  <div className="mt-3">
-                    <Button asChild size="sm" className="w-full bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white hover:shadow-glow transition-all duration-300">
-                      <Link to={`/chat?listing_id=${listing.id}`}>
-                        💬 Chat with seller
+                <div className="mt-3">
+                  {currentUser ? (
+                    currentUser.id === listing.seller_id ? (
+                      <div className="text-center text-sm text-muted-foreground py-2">
+                        Your listing
+                      </div>
+                    ) : (
+                      <Button asChild size="sm" className="w-full bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white hover:shadow-glow transition-all duration-300">
+                        <Link to={`/chat?listing_id=${listing.id}`}>
+                          💬 Chat with seller
+                        </Link>
+                      </Button>
+                    )
+                  ) : (
+                    <Button asChild size="sm" variant="outline" className="w-full">
+                      <Link to="/login">
+                        Login to chat
                       </Link>
                     </Button>
-                  </div>
-                )}
+                  )}
+                </div>
               </article>
             ))}
           </div>
