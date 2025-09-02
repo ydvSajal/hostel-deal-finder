@@ -26,14 +26,14 @@ site_url = "http://localhost:8080"
 additional_redirect_urls = ["https://localhost:8080", "https://mcnntxmpaucquanimhhq.lovableproject.com"]
 jwt_expiry = 3600
 enable_signup = true
-enable_confirmations = false
+enable_confirmations = true
 password_min_length = 6
 enable_anonymous_sign_ins = false
 
 [auth.email]
 enable_signup = true
 double_confirm_changes = false
-enable_confirmations = false
+enable_confirmations = true
 secure_email_change_enabled = false
 
 [auth.security]
