@@ -71,7 +71,7 @@ const Login = () => {
         if (data.user) {
           // Send custom welcome email
           try {
-            await supabase.functions.invoke('send-confirmation-email', {
+            const emailResult = await supabase.functions.invoke('send-confirmation-email', {
               body: {
                 email: email,
                 confirmationUrl: `${window.location.origin}/`,
@@ -79,15 +79,26 @@ const Login = () => {
               }
             });
             
-            toast({
-              title: "Welcome to BU_Basket!",
-              description: "Account created! Check your email for a welcome message.",
-            });
+            console.log('Email function result:', emailResult);
+            
+            if (emailResult.error) {
+              console.error('Email function error:', emailResult.error);
+              toast({
+                title: "Account created!",
+                description: "Account created successfully, but there was an issue sending the welcome email. Please check your spam folder or contact support.",
+                variant: "destructive"
+              });
+            } else {
+              toast({
+                title: "Welcome to BU_Basket!",
+                description: "Account created! Check your email (including spam folder) for welcome message and confirmation link.",
+              });
+            }
           } catch (emailError) {
             console.error('Error sending welcome email:', emailError);
             toast({
               title: "Account created!",
-              description: "Your account was created successfully. Welcome to BU_Basket!",
+              description: "Your account was created successfully. Please check your email (including spam folder) for the confirmation link. If you don't receive it, try logging in directly.",
             });
           }
         }
