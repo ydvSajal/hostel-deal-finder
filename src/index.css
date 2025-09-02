@@ -63,12 +63,27 @@ All colors MUST be HSL.
     --warning: 45 93% 58%; /* Warm yellow */
     --info: 217 91% 60%; /* Harmonious blue */
 
-    /* Enhanced gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(var(--brand) / 0.08), hsl(var(--success) / 0.05));
+    /* Enhanced gradients with atmospheric effects */
+    --gradient-hero: 
+      radial-gradient(ellipse 80% 50% at 50% -20%, hsl(var(--brand) / 0.15), transparent 70%),
+      linear-gradient(180deg, 
+        hsl(var(--background)), 
+        hsl(var(--brand) / 0.02) 50%, 
+        hsl(var(--success) / 0.03) 80%,
+        hsl(var(--background))
+      );
     --gradient-primary: linear-gradient(135deg, hsl(var(--brand)), hsl(var(--brand-2)));
     --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(var(--success-2)));
     --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--brand) / 0.02));
     --gradient-hover: linear-gradient(135deg, hsl(var(--brand) / 0.95), hsl(var(--brand-2) / 0.95));
+    --gradient-mesh: 
+      radial-gradient(at 40% 20%, hsl(var(--brand) / 0.05) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, hsl(var(--brand-2) / 0.04) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, hsl(var(--success) / 0.03) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, hsl(var(--info) / 0.02) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsl(var(--brand) / 0.02) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, hsl(var(--success) / 0.03) 0px, transparent 50%),
+      radial-gradient(at 0% 0%, hsl(var(--brand-2) / 0.02) 0px, transparent 50%);
 
     /* Refined shadows & motion */
     --shadow-elegant: 0 8px 32px -8px hsl(var(--brand) / 0.15);
@@ -127,12 +142,27 @@ All colors MUST be HSL.
     --warning: 45 93% 63%;
     --info: 217 91% 65%;
 
-    /* Dark mode gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(var(--brand) / 0.12), hsl(var(--success) / 0.08));
+    /* Dark mode gradients with enhanced atmosphere */
+    --gradient-hero: 
+      radial-gradient(ellipse 80% 50% at 50% -20%, hsl(var(--brand) / 0.2), transparent 70%),
+      linear-gradient(180deg, 
+        hsl(var(--background)), 
+        hsl(var(--brand) / 0.05) 40%, 
+        hsl(var(--success) / 0.08) 70%,
+        hsl(var(--background))
+      );
     --gradient-primary: linear-gradient(135deg, hsl(var(--brand)), hsl(var(--brand-2)));
     --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(var(--success-2)));
     --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--brand) / 0.05));
     --gradient-hover: linear-gradient(135deg, hsl(var(--brand) / 0.95), hsl(var(--brand-2) / 0.95));
+    --gradient-mesh: 
+      radial-gradient(at 40% 20%, hsl(var(--brand) / 0.1) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, hsl(var(--brand-2) / 0.08) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, hsl(var(--success) / 0.06) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, hsl(var(--info) / 0.04) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsl(var(--brand) / 0.05) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, hsl(var(--success) / 0.06) 0px, transparent 50%),
+      radial-gradient(at 0% 0%, hsl(var(--brand-2) / 0.04) 0px, transparent 50%);
 
     /* Dark mode shadows */
     --shadow-elegant: 0 8px 32px -8px hsl(var(--brand) / 0.25);
@@ -168,6 +198,7 @@ All colors MUST be HSL.
   .bg-hero { background: var(--gradient-hero); }
   .bg-gradient-card { background: var(--gradient-card); }
   .bg-gradient-hover { background: var(--gradient-hover); }
+  .bg-gradient-mesh { background: var(--gradient-mesh); }
   .shadow-elegant { box-shadow: var(--shadow-elegant); }
   .shadow-glow { box-shadow: var(--shadow-glow); }
   .shadow-card { box-shadow: var(--shadow-card); }
@@ -181,5 +212,31 @@ All colors MUST be HSL.
   }
   .hover-glow {
     @apply transition-all duration-300 hover:shadow-glow;
+  }
+  
+  /* Atmospheric background effects */
+  .bg-atmospheric {
+    background: var(--gradient-mesh), hsl(var(--background));
+    position: relative;
+  }
+  
+  .bg-atmospheric::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, hsl(var(--brand) / 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, hsl(var(--brand-2) / 0.02) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, hsl(var(--success) / 0.015) 0%, transparent 50%);
+    pointer-events: none;
+    animation: float 20s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(1deg); }
   }
 }
