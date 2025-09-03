@@ -13,7 +13,7 @@ interface Listing {
   price: number;
   category: string;
   image_url: string;
-  seller_id: string;
+  seller_hash: string;
   created_at: string;
 }
 
@@ -28,11 +28,9 @@ const Listings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       setCurrentUser(user);
 
-      // Load listings
+      // Load listings using secure function
       const { data: listingsData, error } = await supabase
-        .from('listings')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .rpc('get_public_listings');
 
       if (error) {
         console.error('Error loading listings:', error);
@@ -96,17 +94,11 @@ const Listings = () => {
                 )}
                 <div className="mt-3">
                   {currentUser ? (
-                    currentUser.id === listing.seller_id ? (
-                      <div className="text-center text-sm text-muted-foreground py-2">
-                        Your listing
-                      </div>
-                    ) : (
-                      <Button asChild size="sm" className="w-full bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white hover:shadow-glow transition-all duration-300">
-                        <Link to={`/chat?listing_id=${listing.id}`}>
-                          💬 Chat with seller
-                        </Link>
-                      </Button>
-                    )
+                    <Button asChild size="sm" className="w-full bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white hover:shadow-glow transition-all duration-300">
+                      <Link to={`/chat?listing_id=${listing.id}`}>
+                        💬 Chat with seller
+                      </Link>
+                    </Button>
                   ) : (
                     <Button asChild size="sm" variant="outline" className="w-full">
                       <Link to="/login">
