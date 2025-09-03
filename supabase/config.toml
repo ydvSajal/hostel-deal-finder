@@ -22,8 +22,8 @@ file_size_limit = "50MiB"
 image_transformation = {enabled = true}
 
 [auth]
-site_url = "http://localhost:8080"
-additional_redirect_urls = ["https://localhost:8080", "https://mcnntxmpaucquanimhhq.lovableproject.com"]
+site_url = "https://mcnntxmpaucquanimhhq.lovableproject.com"
+additional_redirect_urls = ["http://localhost:8080", "https://localhost:8080", "https://mcnntxmpaucquanimhhq.lovableproject.com"]
 jwt_expiry = 3600
 enable_signup = true
 enable_confirmations = true
@@ -43,5 +43,3 @@ refresh_token_rotation_enabled = true
 manual_linking_enabled = false
 
 [edge_functions]
-[functions.send-confirmation-email]
-verify_jwt = false

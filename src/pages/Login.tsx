@@ -19,6 +19,19 @@ const Login = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
+        toast({
+          title: "Welcome back!",
+          description: "You're now logged in.",
+        });
+        navigate("/", { replace: true });
+      }
+      
+      if (event === 'TOKEN_REFRESHED' && session?.user) {
+        // Email confirmed via link, redirect to main page
+        toast({
+          title: "Email verified!",
+          description: "Your college email has been confirmed. Welcome to BU_Basket!",
+        });
         navigate("/", { replace: true });
       }
     });
@@ -68,39 +81,17 @@ const Login = () => {
         });
         if (error) throw error;
         
-        if (data.user) {
-          // Send custom welcome email
-          try {
-            const emailResult = await supabase.functions.invoke('send-confirmation-email', {
-              body: {
-                email: email,
-                confirmationUrl: `${window.location.origin}/`,
-                name: email.split('@')[0]
-              }
-            });
-            
-            console.log('Email function result:', emailResult);
-            
-            if (emailResult.error) {
-              console.error('Email function error:', emailResult.error);
-              toast({
-                title: "Account created!",
-                description: "Account created successfully, but there was an issue sending the welcome email. Please check your spam folder or contact support.",
-                variant: "destructive"
-              });
-            } else {
-              toast({
-                title: "Welcome to BU_Basket!",
-                description: "Account created! Check your email (including spam folder) for welcome message and confirmation link.",
-              });
-            }
-          } catch (emailError) {
-            console.error('Error sending welcome email:', emailError);
-            toast({
-              title: "Account created!",
-              description: "Your account was created successfully. Please check your email (including spam folder) for the confirmation link. If you don't receive it, try logging in directly.",
-            });
-          }
+        if (data.user && !data.session) {
+          toast({
+            title: "Check your email!",
+            description: "We've sent a confirmation link to your college email. Click the link to verify your account and log in.",
+          });
+        } else if (data.session) {
+          toast({
+            title: "Welcome to BU_Basket!",
+            description: "Account created and verified successfully!",
+          });
+          navigate("/", { replace: true });
         }
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
