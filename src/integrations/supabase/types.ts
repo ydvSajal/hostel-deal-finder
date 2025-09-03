@@ -47,13 +47,6 @@ export type Database = {
             referencedRelation: "listings"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "conversations_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "public_listings"
-            referencedColumns: ["id"]
-          },
         ]
       }
       listings: {
@@ -180,42 +173,7 @@ export type Database = {
       }
     }
     Views: {
-      public_listings: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          description: string | null
-          id: string | null
-          image_url: string | null
-          price: number | null
-          seller_hash: string | null
-          title: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          image_url?: string | null
-          price?: number | null
-          seller_hash?: never
-          title?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          image_url?: string | null
-          price?: number | null
-          seller_hash?: never
-          title?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       get_listing_with_seller: {
@@ -229,6 +187,20 @@ export type Database = {
           price: number
           seller_avatar: string
           seller_name: string
+          title: string
+          updated_at: string
+        }[]
+      }
+      get_public_listings: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          image_url: string
+          price: number
+          seller_hash: string
           title: string
           updated_at: string
         }[]
