@@ -73,16 +73,9 @@ const TestChat = () => {
         addResult(`✅ Test message sent successfully`);
       }
 
-      // Test conversation retrieval
+      // Test conversation retrieval using new function
       const { data: conversations, error: convListError } = await supabase
-        .from('conversations')
-        .select(`
-          *,
-          listing:listings(title),
-          buyer:profiles!conversations_buyer_id_fkey(display_name),
-          seller:profiles!conversations_seller_id_fkey(display_name)
-        `)
-        .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
+        .rpc('get_user_conversations', { user_id: user.id });
       
       if (convListError) throw convListError;
       
@@ -90,8 +83,7 @@ const TestChat = () => {
       
       if (conversations && conversations.length > 0) {
         conversations.forEach((conv: any, index: number) => {
-          const otherUser = conv.buyer_id === user.id ? conv.seller?.display_name : conv.buyer?.display_name;
-          addResult(`  📝 Conversation ${index + 1}: "${conv.listing?.title}" with ${otherUser || 'Anonymous'}`);
+          addResult(`  📝 Conversation ${index + 1}: "${conv.listing_title}" with ${conv.other_user_name}`);
         });
       }
 

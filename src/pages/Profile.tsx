@@ -55,10 +55,10 @@ const Profile = () => {
         setProfileData({
           display_name: profile.display_name || "",
           bio: profile.bio || "",
-          full_name: (profile as any).full_name || "",
-          mobile_number: (profile as any).mobile_number || "",
-          hostel_name: (profile as any).hostel_name || "",
-          room_number: (profile as any).room_number || ""
+          full_name: profile.full_name || "",
+          mobile_number: profile.mobile_number || "",
+          hostel_name: profile.hostel_name || "",
+          room_number: profile.room_number || ""
         });
       }
     } catch (error) {
