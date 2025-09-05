@@ -91,6 +91,7 @@ export type Database = {
           conversation_id: string
           created_at: string
           id: string
+          read_at: string | null
           sender_id: string
         }
         Insert: {
@@ -98,6 +99,7 @@ export type Database = {
           conversation_id: string
           created_at?: string
           id?: string
+          read_at?: string | null
           sender_id: string
         }
         Update: {
@@ -105,6 +107,7 @@ export type Database = {
           conversation_id?: string
           created_at?: string
           id?: string
+          read_at?: string | null
           sender_id?: string
         }
         Relationships: [
@@ -150,7 +153,11 @@ export type Database = {
           bio: string | null
           created_at: string
           display_name: string | null
+          full_name: string | null
+          hostel_name: string | null
           id: string
+          mobile_number: string | null
+          room_number: string | null
           updated_at: string
         }
         Insert: {
@@ -158,7 +165,11 @@ export type Database = {
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          full_name?: string | null
+          hostel_name?: string | null
           id: string
+          mobile_number?: string | null
+          room_number?: string | null
           updated_at?: string
         }
         Update: {
@@ -166,7 +177,11 @@ export type Database = {
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          full_name?: string | null
+          hostel_name?: string | null
           id?: string
+          mobile_number?: string | null
+          room_number?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -176,6 +191,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_display_name_unique: {
+        Args: { display_name: string; user_id: string }
+        Returns: boolean
+      }
+      cleanup_orphaned_avatars: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      get_conversation_messages: {
+        Args: {
+          conversation_id: string
+          limit_count?: number
+          offset_count?: number
+          requesting_user_id: string
+        }
+        Returns: {
+          content: string
+          created_at: string
+          id: string
+          read_at: string
+          sender_avatar: string
+          sender_id: string
+          sender_name: string
+        }[]
+      }
       get_listing_with_seller: {
         Args: { listing_id: string }
         Returns: {
@@ -211,9 +251,31 @@ export type Database = {
           seller_name: string
         }[]
       }
+      get_user_conversations: {
+        Args: { limit_count?: number; offset_count?: number; user_id: string }
+        Returns: {
+          created_at: string
+          id: string
+          last_message: string
+          last_message_time: string
+          listing_id: string
+          listing_image_url: string
+          listing_price: number
+          listing_title: string
+          other_user_avatar: string
+          other_user_id: string
+          other_user_name: string
+          unread_count: number
+          updated_at: string
+        }[]
+      }
       is_conversation_participant: {
         Args: { conv_id: string }
         Returns: boolean
+      }
+      mark_messages_read: {
+        Args: { conversation_id: string; user_id: string }
+        Returns: undefined
       }
       start_conversation: {
         Args: { p_listing_id: string }
