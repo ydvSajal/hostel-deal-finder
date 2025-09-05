@@ -22,6 +22,13 @@ const Hero = () => {
         <div className="mt-8 flex items-center justify-center gap-4">
           <Link to="/sell"><Button variant="successGradient" size="xl">Becho 🔥</Button></Link>
           <Link to="/listings"><Button variant="hero" size="xl">Kharido 🛍️</Button></Link>
+          <Button 
+            variant="infoGradient" 
+            size="xl"
+            onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSdLYopQ2dCo_kBtnhMHmZq7cKgQeuBSWh5H368NKWNyoHiV4A/viewform?usp=header', '_blank')}
+          >
+            Borrow 📚
+          </Button>
         </div>
       </div>
     </section>

@@ -14,6 +14,7 @@ import Conversations from "./pages/Conversations";
 import TestChat from "./pages/TestChat";
 import Privacy from "./pages/Privacy";
 import EmailConfirmed from "./pages/EmailConfirmed";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/test-chat" element={<TestChat />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/email-confirmed" element={<EmailConfirmed />} />
+            <Route path="/profile" element={<Profile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
