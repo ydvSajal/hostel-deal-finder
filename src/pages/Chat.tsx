@@ -41,6 +41,80 @@ const Chat = () => {
 
   const listingId = searchParams.get('listing_id');
 
+  const loadConversation = useCallback(async (conversationId: string) => {
+    try {
+      // Get conversation details with listing info
+      const { data: convData, error: convError } = await supabase
+        .from('conversations')
+        .select(`
+          *,
+          listing:listings(title, price, seller_id)
+        `)
+        .eq('id', conversationId)
+        .single();
+
+      if (convError) throw convError;
+
+      setConversation(convData);
+
+      // Load messages
+      const { data: messagesData, error: msgError } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
+
+      if (msgError) throw msgError;
+
+      setMessages(messagesData || []);
+
+      // Subscribe to new messages
+      const channel = supabase
+        .channel(`messages:${conversationId}`)
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`
+        }, (payload) => {
+          setMessages(prev => [...prev, payload.new as Message]);
+        })
+        .subscribe();
+
+      setLoading(false);
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    } catch (error: unknown) {
+      toast({
+        title: "Error loading conversation",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive"
+      });
+      setLoading(false);
+    }
+  }, [toast]);
+
+  const startOrGetConversation = useCallback(async (listingId: string) => {
+    try {
+      const { data, error } = await supabase.rpc('start_conversation', {
+        p_listing_id: listingId
+      });
+
+      if (error) throw error;
+
+      await loadConversation(data);
+    } catch (error: unknown) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive"
+      });
+      setLoading(false);
+    }
+  }, [toast, loadConversation]);
+
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -64,27 +138,6 @@ const Chat = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  const startOrGetConversation = useCallback(async (listingId: string) => {
-    try {
-      const { data, error } = await supabase.rpc('start_conversation', {
-        p_listing_id: listingId
-      });
-
-      if (error) throw error;
-
-      await loadConversation(data);
-    } catch (error: unknown) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
-        variant: "destructive"
-      });
-      setLoading(false);
-    }
-  }, [toast, loadConversation]);
-
-  const loadConversation = useCallback(async (conversationId: string) => {
     try {
       // Get conversation details with listing info
       const { data: convData, error: convError } = await supabase
