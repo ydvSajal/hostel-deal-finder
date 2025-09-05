@@ -241,14 +241,9 @@ Look for issues labeled `good first issue` or `help wanted`:
 
 ## 📚 Documentation
 
-All comprehensive documentation is available in the [`docs/`](./docs/) folder:
-
-- **[Complete Documentation Index](./docs/index.md)** - Full documentation overview
-- **[Chat Functionality](./docs/CHAT_FUNCTIONALITY_SUMMARY.md)** - Multi-buyer chat system details
-- **[Supabase Setup](./docs/SUPABASE_EMAIL_SETUP.md)** - Database and email configuration
-- **[Contributing Guide](./docs/CONTRIBUTING.md)** - Development workflow and guidelines
-- **[Security Policy](./docs/SECURITY.md)** - Security guidelines and reporting
-- **[Code of Conduct](./docs/CODE_OF_CONDUCT.md)** - Community standards
+- **[Chat Functionality](./CHAT_FUNCTIONALITY_SUMMARY.md)** - Multi-buyer chat system details
+- **[Supabase Setup](./SUPABASE_EMAIL_SETUP.md)** - Database and email configuration
+- **[API Documentation](../src/integrations/supabase/types.ts)** - TypeScript types and schema
 
 ## 🔒 Security
 
@@ -261,21 +256,7 @@ Report security issues privately to the maintainers.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📁 Project Structure
-
-```
-├── docs/                    # 📚 Complete documentation
-│   ├── README.md           # Project overview
-│   ├── CONTRIBUTING.md     # Contribution guidelines
-│   ├── SECURITY.md         # Security policy
-│   └── ...                 # More documentation
-├── src/                    # 💻 Source code
-├── supabase/              # 🗄️ Database migrations
-├── .github/               # 🔧 GitHub workflows & templates
-└── ...                    # Configuration files
-```
+This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
