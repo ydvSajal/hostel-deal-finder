@@ -138,59 +138,6 @@ const Chat = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-    try {
-      // Get conversation details with listing info
-      const { data: convData, error: convError } = await supabase
-        .from('conversations')
-        .select(`
-          *,
-          listing:listings(title, price, seller_id)
-        `)
-        .eq('id', conversationId)
-        .single();
-
-      if (convError) throw convError;
-
-      setConversation(convData);
-
-      // Load messages
-      const { data: messagesData, error: msgError } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
-
-      if (msgError) throw msgError;
-
-      setMessages(messagesData || []);
-
-      // Subscribe to new messages
-      const channel = supabase
-        .channel(`messages:${conversationId}`)
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `conversation_id=eq.${conversationId}`
-        }, (payload) => {
-          setMessages(prev => [...prev, payload.new as Message]);
-        })
-        .subscribe();
-
-      setLoading(false);
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    } catch (error: unknown) {
-      toast({
-        title: "Error loading conversation",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
-        variant: "destructive"
-      });
-      setLoading(false);
-    }
-  }, [toast]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
