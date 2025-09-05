@@ -1,5 +1,5 @@
 const steps = [
-  { id: 1, title: "Apna Profile Banao", desc: "Naam, hostel aur room no. add karo" },
+  { id: 1, title: "Account Banao", desc: "College email se sign up karo" },
   { id: 2, title: "Cheezein Dalo ya Dhoondo", desc: "Jo bechna hai daalo, jo chahiye wo dhoondo 🔎" },
   { id: 3, title: "Deal Pakka Karo", desc: "Mess ya lobby mein milo, done deal 🙌" },
 ];

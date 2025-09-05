@@ -62,7 +62,29 @@ This project is built with:
 
 ## How can I deploy this project?
 
+### Option 1: Lovable (Recommended)
 Simply open [Lovable](https://lovable.dev/projects/836febaa-da52-46f9-a970-3248c46d2604) and click on Share -> Publish.
+
+### Option 2: GitHub Pages
+This project is configured for GitHub Pages deployment:
+
+1. Go to your repository Settings
+2. Navigate to Pages section
+3. Set Source to "GitHub Actions"
+4. Push to main branch to trigger deployment
+
+The site will be available at: `https://yourusername.github.io/hostel-deal-finder/`
+
+### Option 3: Manual Build
+```sh
+npm run build
+# Upload the dist/ folder to your hosting provider
+```
+
+### Option 4: Other Platforms
+The project includes deployment workflows for:
+- Vercel (requires VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID secrets)
+- AWS S3 + CloudFront (requires AWS credentials and bucket configuration)
 
 ## Can I connect a custom domain to my Lovable project?
 

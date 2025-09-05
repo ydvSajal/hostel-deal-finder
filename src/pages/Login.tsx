@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { config } from "@/lib/config";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,6 +16,20 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [loading, setLoading] = useState(false);
+  const [showResendButton, setShowResendButton] = useState(false);
+
+  useEffect(() => {
+    // Check if user came from email confirmation
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('confirmed') === 'true') {
+      toast({
+        title: "Email verified! ✅",
+        description: "Your college email has been confirmed. You can now log in to BU_Basket.",
+      });
+      // Clear the URL parameter
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -45,14 +60,51 @@ const Login = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const isCollegeEmail = (val: string) => /@bennett\.edu\.in$/i.test(val.trim());
+  const isCollegeEmail = (val: string) => config.isCollegeEmail(val);
+
+  const handleResendConfirmation = async () => {
+    if (!email || !isCollegeEmail(email)) {
+      toast({
+        title: "Enter your college email",
+        description: `Please enter your @${config.collegeEmailDomain} email address first.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: config.emailRedirectUrl
+        }
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Confirmation email resent! 📧",
+        description: "Check your college email for the verification link.",
+      });
+    } catch (err: unknown) {
+      toast({
+        title: "Error resending email",
+        description: err instanceof Error ? err.message : "Failed to resend confirmation email.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isCollegeEmail(email)) {
       toast({
         title: "Use your college email",
-        description: "Only addresses ending with @bennett.edu.in are allowed.",
+        description: `Only addresses ending with @${config.collegeEmailDomain} are allowed.`,
         variant: "destructive"
       });
       return;
@@ -73,9 +125,11 @@ const Login = () => {
           email,
           password,
           options: { 
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: config.emailRedirectUrl,
             data: {
-              display_name: email.split('@')[0]
+              display_name: email.split('@')[0],
+              college_email: email,
+              college_domain: 'bennett.edu.in'
             }
           },
         });
@@ -83,12 +137,13 @@ const Login = () => {
         
         if (data.user && !data.session) {
           toast({
-            title: "Check your email!",
-            description: "We've sent a confirmation link to your college email. Click the link to verify your account and log in.",
+            title: "Verification email sent! 📧",
+            description: "We've sent a confirmation link to your college email. Click the button in the email to verify your account and access BU_Basket.",
           });
+          setShowResendButton(true);
         } else if (data.session) {
           toast({
-            title: "Welcome to BU_Basket!",
+            title: "Welcome to BU_Basket! 🎉",
             description: "Account created and verified successfully!",
           });
           navigate("/", { replace: true });
@@ -98,23 +153,35 @@ const Login = () => {
         if (error) throw error;
         
         if (data.session?.user) {
+          if (!data.user.email_confirmed_at) {
+            toast({
+              title: "Email not verified",
+              description: "Please check your email and click the verification link before logging in.",
+              variant: "destructive"
+            });
+            return;
+          }
+          
           toast({
-            title: "Welcome back!",
+            title: "Welcome back! 👋",
             description: "You're now logged in.",
           });
           navigate("/", { replace: true });
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       let msg = "Something went wrong";
-      if (err.message.includes("Invalid login credentials")) {
-        msg = "Invalid email or password";
-      } else if (err.message.includes("Email not confirmed")) {
-        msg = "Please check your email and click the verification link";
-      } else if (err.message.includes("User already registered")) {
+      const errorMessage = err instanceof Error ? err.message : "";
+      if (errorMessage.includes("Invalid login credentials")) {
+        msg = "Invalid email or password. Make sure your email is verified.";
+      } else if (errorMessage.includes("Email not confirmed")) {
+        msg = "Please check your email and click the verification link first.";
+      } else if (errorMessage.includes("User already registered")) {
         msg = "This email is already registered. Try logging in instead.";
+      } else if (errorMessage.includes("Signup not allowed")) {
+        msg = "Account creation is currently restricted to verified college emails.";
       } else {
-        msg = err.message;
+        msg = errorMessage || "Something went wrong";
       }
       
       toast({ 
@@ -138,7 +205,7 @@ const Login = () => {
       <main className="mx-auto max-w-xl px-4 py-16">
         <h1 className="mb-2 text-3xl font-bold">{mode === "login" ? "Login" : "Create your account"}</h1>
         <p className="mb-6 text-muted-foreground">
-          Only college emails ending with <strong>@bennett.edu.in</strong> are allowed. Verification required.
+          Only college emails ending with <strong>@{config.collegeEmailDomain}</strong> are allowed. Verification required.
         </p>
         <div className="rounded-2xl border bg-card p-8 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -148,11 +215,11 @@ const Login = () => {
                 id="email"
                 type="email"
                 inputMode="email"
-                placeholder="you@bennett.edu.in"
+                placeholder={`you@${config.collegeEmailDomain}`}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                pattern=".*@bennett\.edu\.in"
+                pattern={`.*@${config.collegeEmailDomain.replace('.', '\\.')}`}
               />
             </div>
             <div>
@@ -171,6 +238,23 @@ const Login = () => {
               {loading ? "Please wait…" : mode === "login" ? "Continue" : "Create account"}
             </Button>
           </form>
+          
+          {showResendButton && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800 mb-2">
+                Didn't receive the email? Check your spam folder or resend it.
+              </p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleResendConfirmation}
+                disabled={loading}
+                className="w-full"
+              >
+                Resend confirmation email
+              </Button>
+            </div>
+          )}
           <div className="mt-4 text-center text-sm">
             {mode === "login" ? (
               <button className="underline" onClick={() => setMode("signup")}>

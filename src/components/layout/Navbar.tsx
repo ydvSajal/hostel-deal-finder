@@ -1,28 +1,66 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { ShoppingBasket, LogOut } from "lucide-react";
+import { ShoppingBasket, LogOut, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect } from "react";
 
 const Navbar = () => {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    if (!user) return;
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    const loadUnreadCount = async () => {
+      try {
+        // Get user's conversations
+        const { data: conversations } = await supabase
+          .from('conversations')
+          .select('id')
+          .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
 
-    return () => subscription.unsubscribe();
-  }, []);
+        if (!conversations) return;
+
+        // Count unread messages across all conversations
+        let totalUnread = 0;
+        for (const conv of conversations) {
+          const { count } = await supabase
+            .from('messages')
+            .select('*', { count: 'exact', head: true })
+            .eq('conversation_id', conv.id)
+            .neq('sender_id', user.id);
+          
+          totalUnread += count || 0;
+        }
+        
+        setUnreadCount(totalUnread);
+      } catch (error) {
+        console.error('Error loading unread count:', error);
+      }
+    };
+
+    loadUnreadCount();
+
+    // Subscribe to new messages to update unread count
+    const channel = supabase
+      .channel('navbar-messages')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages'
+      }, () => {
+        loadUnreadCount();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -52,7 +90,15 @@ const Navbar = () => {
         <div className="hidden items-center gap-4 md:flex">
           <NavLink to="/listings" className={({ isActive }) => isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}>Browse</NavLink>
           {user && (
-            <NavLink to="/chat" className={({ isActive }) => isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}>Chat</NavLink>
+            <NavLink to="/conversations" className={({ isActive }) => `relative flex items-center gap-1 ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+              <MessageCircle className="h-4 w-4" />
+              Messages
+              {unreadCount > 0 && (
+                <Badge variant="destructive" className="text-xs px-1 py-0 min-w-[1.25rem] h-5">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </Badge>
+              )}
+            </NavLink>
           )}
         </div>
 

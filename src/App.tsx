@@ -10,6 +10,10 @@ import Login from "./pages/Login";
 import Listings from "./pages/Listings";
 import Sell from "./pages/Sell";
 import Chat from "./pages/Chat";
+import Conversations from "./pages/Conversations";
+import TestChat from "./pages/TestChat";
+import Privacy from "./pages/Privacy";
+import EmailConfirmed from "./pages/EmailConfirmed";
 
 const queryClient = new QueryClient();
 
@@ -19,13 +23,17 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/listings" element={<Listings />} />
             <Route path="/sell" element={<Sell />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/conversations" element={<Conversations />} />
+            <Route path="/test-chat" element={<TestChat />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/email-confirmed" element={<EmailConfirmed />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

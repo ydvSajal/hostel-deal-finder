@@ -4,9 +4,13 @@ import Hero from "@/components/sections/Hero";
 import Features from "@/components/sections/Features";
 import HowItWorks from "@/components/sections/HowItWorks";
 import CTAJoin from "@/components/sections/CTAJoin";
+import WelcomeBack from "@/components/sections/WelcomeBack";
+import { useAuth } from "@/hooks/useAuth";
 import { Helmet } from "react-helmet-async";
 
 const Index = () => {
+  const { isAuthenticated, loading } = useAuth();
+
   return (
     <div className="min-h-screen bg-atmospheric">
       {/* Floating orbs for visual interest */}
@@ -36,7 +40,7 @@ const Index = () => {
         <Hero />
         <Features />
         <HowItWorks />
-        <CTAJoin />
+        {!loading && (isAuthenticated ? <WelcomeBack /> : <CTAJoin />)}
       </main>
       <Footer />
     </div>

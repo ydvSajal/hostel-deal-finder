@@ -26,22 +26,11 @@ site_url = "https://mcnntxmpaucquanimhhq.lovableproject.com"
 additional_redirect_urls = ["http://localhost:8080", "https://localhost:8080", "https://mcnntxmpaucquanimhhq.lovableproject.com"]
 jwt_expiry = 3600
 enable_signup = true
-enable_confirmations = true
-password_min_length = 8
 enable_anonymous_sign_ins = false
 
 [auth.email]
 enable_signup = true
 double_confirm_changes = false
 enable_confirmations = true
-secure_email_change_enabled = false
-
-[auth.security]
-captcha_enabled = false
-captcha_provider = "hcaptcha"
-refresh_token_rotation_enabled = true
-manual_linking_enabled = false
-password_min_length = 8
-enable_leaked_password_protection = true
 
 [edge_functions]
