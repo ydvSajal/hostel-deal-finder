@@ -19,11 +19,11 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         hero:
-          "rounded-full text-primary-foreground bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] hover:opacity-90 shadow-glow",
+          "rounded-full text-primary-foreground bg-gradient-to-r from-brand to-brand-2 hover:opacity-90 shadow-glow",
         successGradient:
-          "rounded-full text-primary-foreground bg-gradient-to-r from-[hsl(var(--success))] to-[hsl(var(--success-2))] hover:opacity-90 shadow-elegant",
+          "rounded-full text-primary-foreground bg-gradient-to-r from-success to-success-2 hover:opacity-90 shadow-elegant",
         infoGradient:
-          "rounded-full text-primary-foreground bg-gradient-to-r from-[hsl(var(--info))] to-[hsl(var(--brand))] hover:opacity-90 shadow-glow",
+          "rounded-full text-primary-foreground bg-gradient-to-r from-info to-brand hover:opacity-90 shadow-glow",
       },
       size: {
         default: "h-10 px-4 py-2",
