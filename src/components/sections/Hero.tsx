@@ -19,12 +19,17 @@ const Hero = () => {
         <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
           Buy, sell, borrow — sab kuch campus ke andar. Safe, fast, aur bina jhanjhat.
         </p>
-        <div className="mt-8 flex items-center justify-center gap-4">
-          <Link to="/sell"><Button variant="successGradient" size="xl">Becho 🔥</Button></Link>
-          <Link to="/listings"><Button variant="hero" size="xl">Kharido 🛍️</Button></Link>
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+          <Link to="/sell" className="w-full sm:w-auto">
+            <Button variant="successGradient" size="xl" className="w-full sm:w-auto">Becho 🔥</Button>
+          </Link>
+          <Link to="/listings" className="w-full sm:w-auto">
+            <Button variant="hero" size="xl" className="w-full sm:w-auto">Kharido 🛍️</Button>
+          </Link>
           <Button 
             variant="infoGradient" 
             size="xl"
+            className="w-full sm:w-auto"
             onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSdLYopQ2dCo_kBtnhMHmZq7cKgQeuBSWh5H368NKWNyoHiV4A/viewform?usp=header', '_blank')}
           >
             Borrow 📚
