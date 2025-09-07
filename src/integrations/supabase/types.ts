@@ -188,9 +188,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      safe_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string | null
+          full_name: string | null
+          hostel_name: string | null
+          id: string | null
+          mobile_number: string | null
+          room_number: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          full_name?: never
+          hostel_name?: never
+          id?: string | null
+          mobile_number?: never
+          room_number?: never
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          full_name?: never
+          hostel_name?: never
+          id?: string | null
+          mobile_number?: never
+          room_number?: never
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      are_conversation_participants: {
+        Args: { user1_id: string; user2_id: string }
+        Returns: boolean
+      }
       check_display_name_unique: {
         Args: { display_name: string; user_id: string }
         Returns: boolean
@@ -243,6 +285,16 @@ export type Database = {
           seller_hash: string
           title: string
           updated_at: string
+        }[]
+      }
+      get_safe_profile: {
+        Args: { profile_user_id: string; requesting_user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          created_at: string
+          display_name: string
+          id: string
         }[]
       }
       get_seller_display_info: {
