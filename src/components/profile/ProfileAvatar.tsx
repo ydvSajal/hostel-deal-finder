@@ -32,15 +32,21 @@ const ProfileAvatar = ({ size = "md", showUploadButton = false, userId }: Profil
 
   const loadProfile = async (profileUserId: string) => {
     try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('avatar_url, display_name')
-        .eq('id', profileUserId)
-        .single();
+      // Use secure function to get safe profile data
+      const { data: profile, error } = await supabase.rpc('get_safe_profile', {
+        profile_user_id: profileUserId,
+        requesting_user_id: user?.id || null
+      });
 
-      if (profile) {
-        setAvatarUrl(profile.avatar_url);
-        setDisplayName(profile.display_name || "");
+      if (error) {
+        console.error('Error loading profile:', error);
+        return;
+      }
+
+      if (profile && profile.length > 0) {
+        const profileData = profile[0];
+        setAvatarUrl(profileData.avatar_url);
+        setDisplayName(profileData.display_name || "");
       }
     } catch (error) {
       console.error('Error loading profile:', error);
