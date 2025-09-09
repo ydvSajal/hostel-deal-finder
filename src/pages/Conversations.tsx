@@ -82,12 +82,13 @@ const Conversations = () => {
             .limit(1)
             .single();
 
-          // Get unread count (messages from other user)
+          // Get unread count (messages from other user that haven't been read)
           const { count: unreadCount } = await supabase
             .from('messages')
             .select('*', { count: 'exact', head: true })
             .eq('conversation_id', conv.id)
-            .neq('sender_id', userId);
+            .neq('sender_id', userId)
+            .is('read_at', null);
 
           // Get other user's display name
           const otherUserId = conv.buyer_id === userId ? conv.seller_id : conv.buyer_id;

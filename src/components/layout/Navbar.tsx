@@ -41,7 +41,8 @@ const Navbar = () => {
             .from('messages')
             .select('*', { count: 'exact', head: true })
             .eq('conversation_id', conv.id)
-            .neq('sender_id', user.id);
+            .neq('sender_id', user.id)
+            .is('read_at', null); // Only count unread messages
           
           totalUnread += count || 0;
         }
@@ -54,11 +55,18 @@ const Navbar = () => {
 
     loadUnreadCount();
 
-    // Subscribe to new messages to update unread count
+    // Subscribe to new messages and message updates to update unread count
     const channel = supabase
       .channel('navbar-messages')
       .on('postgres_changes', {
         event: 'INSERT',
+        schema: 'public',
+        table: 'messages'
+      }, () => {
+        loadUnreadCount();
+      })
+      .on('postgres_changes', {
+        event: 'UPDATE',
         schema: 'public',
         table: 'messages'
       }, () => {
