@@ -9,12 +9,14 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Check } from "lucide-react";
 
 interface Message {
   id: string;
   sender_id: string;
   content: string;
   created_at: string;
+  read_at?: string;
 }
 
 interface Conversation {
@@ -88,7 +90,8 @@ const Chat = () => {
         id: msg.id,
         sender_id: msg.sender_id,
         content: msg.content,
-        created_at: msg.created_at
+        created_at: msg.created_at,
+        read_at: msg.read_at
       }));
 
       setMessages(transformedMessages);
@@ -185,6 +188,30 @@ const Chat = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const markAsRead = async (messageId: string) => {
+    if (!conversation || !currentUser) return;
+
+    try {
+      const { error } = await supabase.rpc('mark_messages_read', {
+        conversation_id: conversation.id,
+        user_id: currentUser.id
+      });
+
+      if (error) throw error;
+
+      // Update the local state to reflect the read status
+      setMessages(prev => prev.map(msg => 
+        msg.sender_id !== currentUser.id ? { ...msg, read_at: new Date().toISOString() } : msg
+      ));
+    } catch (error: unknown) {
+      toast({
+        title: "Error marking message as read",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive"
+      });
+    }
+  };
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -295,12 +322,29 @@ const Chat = () => {
           ) : (
             messages.map((message) => {
               const isMe = message.sender_id === currentUser.id;
+              const isUnread = !isMe && !message.read_at;
               return (
                 <div key={message.id} className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${isMe ? "ml-auto bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white" : "bg-secondary"}`}>
-                  <p>{message.content}</p>
-                  <p className={`text-xs mt-1 ${isMe ? "text-white/70" : "text-muted-foreground"}`}>
-                    {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <p>{message.content}</p>
+                      <p className={`text-xs mt-1 ${isMe ? "text-white/70" : "text-muted-foreground"}`}>
+                        {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {isUnread && <span className="ml-2 text-destructive">•</span>}
+                      </p>
+                    </div>
+                    {isUnread && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0 hover:bg-muted/50"
+                        onClick={() => markAsRead(message.id)}
+                        title="Mark as read"
+                      >
+                        <Check className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               );
             })
