@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { config } from "@/lib/config";
@@ -13,10 +14,9 @@ import { config } from "@/lib/config";
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [showResendButton, setShowResendButton] = useState(false);
 
   useEffect(() => {
     // Check if user came from email confirmation
@@ -62,45 +62,7 @@ const Login = () => {
 
   const isCollegeEmail = (val: string) => config.isCollegeEmail(val);
 
-  const handleResendConfirmation = async () => {
-    if (!email || !isCollegeEmail(email)) {
-      toast({
-        title: "Enter your college email",
-        description: `Please enter your @${config.collegeEmailDomain} email address first.`,
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: email,
-        options: {
-          emailRedirectTo: config.emailRedirectUrl
-        }
-      });
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Confirmation email resent! 📧",
-        description: "Check your college email for the verification link.",
-      });
-    } catch (err: unknown) {
-      toast({
-        title: "Error resending email",
-        description: err instanceof Error ? err.message : "Failed to resend confirmation email.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const sendOTP = async () => {
     if (!isCollegeEmail(email)) {
       toast({
         title: "Use your college email",
@@ -109,89 +71,76 @@ const Login = () => {
       });
       return;
     }
-    if (password.length < 8) {
-      toast({ 
-        title: "Password too short", 
-        description: "Use at least 8 characters.",
-        variant: "destructive" 
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: config.emailRedirectUrl
+        }
+      });
+      
+      if (error) throw error;
+      
+      setOtpSent(true);
+      toast({
+        title: "OTP sent! 📧",
+        description: "Check your college email for the verification code.",
+      });
+    } catch (err: unknown) {
+      toast({
+        title: "Error sending OTP",
+        description: err instanceof Error ? err.message : "Failed to send verification code.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otp.length !== 6) {
+      toast({
+        title: "Invalid OTP",
+        description: "Please enter the complete 6-digit code.",
+        variant: "destructive"
       });
       return;
     }
 
     setLoading(true);
     try {
-      if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { 
-            emailRedirectTo: config.emailRedirectUrl,
-            data: {
-              display_name: email.split('@')[0],
-              college_email: email,
-              college_domain: 'bennett.edu.in'
-            }
-          },
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: 'email'
+      });
+      
+      if (error) throw error;
+      
+      if (data.session?.user) {
+        toast({
+          title: "Welcome! 👋",
+          description: "You're now logged in.",
         });
-        if (error) throw error;
-        
-        if (data.user && !data.session) {
-          toast({
-            title: "Verification email sent! 📧",
-            description: "We've sent a confirmation link to your college email. Click the button in the email to verify your account and access BU_Basket.",
-          });
-          setShowResendButton(true);
-        } else if (data.session) {
-          toast({
-            title: "Welcome to BU_Basket! 🎉",
-            description: "Account created and verified successfully!",
-          });
-          navigate("/", { replace: true });
-        }
-      } else {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        
-        if (data.session?.user) {
-          if (!data.user.email_confirmed_at) {
-            toast({
-              title: "Email not verified",
-              description: "Please check your email and click the verification link before logging in.",
-              variant: "destructive"
-            });
-            return;
-          }
-          
-          toast({
-            title: "Welcome back! 👋",
-            description: "You're now logged in.",
-          });
-          navigate("/", { replace: true });
-        }
+        navigate("/", { replace: true });
       }
     } catch (err: unknown) {
-      let msg = "Something went wrong";
-      const errorMessage = err instanceof Error ? err.message : "";
-      if (errorMessage.includes("Invalid login credentials")) {
-        msg = "Invalid email or password. Make sure your email is verified.";
-      } else if (errorMessage.includes("Email not confirmed")) {
-        msg = "Please check your email and click the verification link first.";
-      } else if (errorMessage.includes("User already registered")) {
-        msg = "This email is already registered. Try logging in instead.";
-      } else if (errorMessage.includes("Signup not allowed")) {
-        msg = "Account creation is currently restricted to verified college emails.";
-      } else {
-        msg = errorMessage || "Something went wrong";
-      }
-      
-      toast({ 
-        title: "Authentication error", 
-        description: msg,
-        variant: "destructive" 
+      toast({
+        title: "Invalid code",
+        description: err instanceof Error ? err.message : "Please check your code and try again.",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleBack = () => {
+    setOtpSent(false);
+    setOtp("");
   };
 
   return (
@@ -203,69 +152,69 @@ const Login = () => {
       </Helmet>
       <Navbar />
       <main className="mx-auto max-w-xl px-4 py-16">
-        <h1 className="mb-2 text-3xl font-bold">{mode === "login" ? "Login" : "Create your account"}</h1>
+        <h1 className="mb-2 text-3xl font-bold">
+          {!otpSent ? "Login with Email OTP" : "Enter Verification Code"}
+        </h1>
         <p className="mb-6 text-muted-foreground">
-          Only college emails ending with <strong>@{config.collegeEmailDomain}</strong> are allowed. Verification required.
+          {!otpSent 
+            ? `Enter your @${config.collegeEmailDomain} email to receive a verification code.`
+            : `We've sent a 6-digit code to ${email}. Enter it below to login.`
+          }
         </p>
         <div className="rounded-2xl border bg-card p-8 shadow-sm">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="email">College email</Label>
-              <Input
-                id="email"
-                type="email"
-                inputMode="email"
-                placeholder={`you@${config.collegeEmailDomain}`}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                pattern={`.*@${config.collegeEmailDomain.replace('.', '\\.')}`}
-              />
-            </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={8}
-              />
-            </div>
-            <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
-              {loading ? "Please wait…" : mode === "login" ? "Continue" : "Create account"}
-            </Button>
-          </form>
-          
-          {showResendButton && (
-            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-800 mb-2">
-                Didn't receive the email? Check your spam folder or resend it.
-              </p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleResendConfirmation}
-                disabled={loading}
-                className="w-full"
-              >
-                Resend confirmation email
+          {!otpSent ? (
+            <form onSubmit={(e) => { e.preventDefault(); sendOTP(); }} className="space-y-4">
+              <div>
+                <Label htmlFor="email">College email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  inputMode="email"
+                  placeholder={`you@${config.collegeEmailDomain}`}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  pattern={`.*@${config.collegeEmailDomain.replace('.', '\\.')}`}
+                />
+              </div>
+              <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
+                {loading ? "Sending code..." : "Send OTP"}
               </Button>
-            </div>
+            </form>
+          ) : (
+            <form onSubmit={verifyOTP} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="otp">Enter 6-digit code</Label>
+                <div className="flex justify-center">
+                  <InputOTP
+                    value={otp}
+                    onChange={setOtp}
+                    maxLength={6}
+                  >
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
+              </div>
+              <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading || otp.length !== 6}>
+                {loading ? "Verifying..." : "Login"}
+              </Button>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" onClick={handleBack} className="flex-1">
+                  Back
+                </Button>
+                <Button type="button" variant="outline" onClick={sendOTP} disabled={loading} className="flex-1">
+                  Resend OTP
+                </Button>
+              </div>
+            </form>
           )}
-          <div className="mt-4 text-center text-sm">
-            {mode === "login" ? (
-              <button className="underline" onClick={() => setMode("signup")}>
-                New here? Create an account
-              </button>
-            ) : (
-              <button className="underline" onClick={() => setMode("login")}>
-                Already have an account? Log in
-              </button>
-            )}
-          </div>
         </div>
       </main>
       <Footer />
