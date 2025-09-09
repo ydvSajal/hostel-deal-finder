@@ -40,6 +40,7 @@ const Chat = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const listingId = searchParams.get('listing_id');
+  const conversationId = searchParams.get('conversation_id');
 
   const loadConversation = useCallback(async (conversationId: string) => {
     try {
@@ -53,20 +54,39 @@ const Chat = () => {
         .eq('id', conversationId)
         .single();
 
-      if (convError) throw convError;
+      if (convError) {
+        console.error('Conversation error:', convError);
+        throw new Error('Failed to load conversation');
+      }
+
+      if (!convData) {
+        throw new Error('Conversation not found');
+      }
 
       setConversation(convData);
 
-      // Load messages
-      const { data: messagesData, error: msgError } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
+      // Load messages using the get_conversation_messages function for proper RLS
+      const { data: messagesData, error: msgError } = await supabase.rpc('get_conversation_messages', {
+        conversation_id: conversationId,
+        requesting_user_id: currentUser?.id || '',
+        limit_count: 50,
+        offset_count: 0
+      });
 
-      if (msgError) throw msgError;
+      if (msgError) {
+        console.error('Messages error:', msgError);
+        throw msgError;
+      }
 
-      setMessages(messagesData || []);
+      // Transform the messages to match our interface
+      const transformedMessages = (messagesData || []).map((msg: any) => ({
+        id: msg.id,
+        sender_id: msg.sender_id,
+        content: msg.content,
+        created_at: msg.created_at
+      }));
+
+      setMessages(transformedMessages);
 
       // Subscribe to new messages
       const channel = supabase
@@ -77,7 +97,8 @@ const Chat = () => {
           table: 'messages',
           filter: `conversation_id=eq.${conversationId}`
         }, (payload) => {
-          setMessages(prev => [...prev, payload.new as Message]);
+          const newMessage = payload.new as Message;
+          setMessages(prev => [...prev, newMessage]);
         })
         .subscribe();
 
@@ -87,14 +108,15 @@ const Chat = () => {
         supabase.removeChannel(channel);
       };
     } catch (error: unknown) {
+      console.error('Load conversation error:', error);
       toast({
         title: "Error loading conversation",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
+        description: error instanceof Error ? error.message : "Unable to load conversation",
         variant: "destructive"
       });
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, currentUser]);
 
   const startOrGetConversation = useCallback(async (listingId: string) => {
     try {
@@ -102,13 +124,19 @@ const Chat = () => {
         p_listing_id: listingId
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Start conversation error:', error);
+        throw error;
+      }
 
-      await loadConversation(data);
+      if (data) {
+        await loadConversation(data);
+      }
     } catch (error: unknown) {
+      console.error('Start or get conversation error:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
+        description: error instanceof Error ? error.message : "Unable to start conversation",
         variant: "destructive"
       });
       setLoading(false);
@@ -124,7 +152,9 @@ const Chat = () => {
         return;
       }
 
-      if (listingId) {
+      if (conversationId) {
+        await loadConversation(conversationId);
+      } else if (listingId) {
         await startOrGetConversation(listingId);
       } else {
         setLoading(false);
@@ -132,7 +162,7 @@ const Chat = () => {
     };
 
     getUser();
-  }, [listingId, startOrGetConversation]);
+  }, [listingId, conversationId, startOrGetConversation, loadConversation]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -193,8 +223,8 @@ const Chat = () => {
     );
   }
 
-  if (!listingId) {
-    return <Navigate to="/listings" replace />;
+  if (!listingId && !conversationId) {
+    return <Navigate to="/conversations" replace />;
   }
 
   if (loading) {

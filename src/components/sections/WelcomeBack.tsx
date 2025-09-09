@@ -19,13 +19,15 @@ const WelcomeBack = () => {
           requesting_user_id: user.id
         });
         
-        if (data && data.length > 0 && data[0].display_name) {
+        if (!error && data && data.length > 0 && data[0].display_name) {
           setDisplayName(data[0].display_name);
         } else {
+          // Fallback to email username
           setDisplayName(user.email?.split('@')[0] || 'Student');
         }
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.warn('Error fetching profile:', error);
+        // Fallback to email username
         setDisplayName(user.email?.split('@')[0] || 'Student');
       }
     };
@@ -57,7 +59,7 @@ const WelcomeBack = () => {
               Sell Something
             </Button>
           </Link>
-          <Link to="/chat">
+          <Link to="/conversations">
             <Button variant="outline" className="rounded-full px-6">
               <MessageCircle className="mr-2 h-4 w-4" />
               Messages

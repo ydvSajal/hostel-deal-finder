@@ -89,11 +89,21 @@ const Conversations = () => {
 
           // Get other user's display name
           const otherUserId = conv.buyer_id === userId ? conv.seller_id : conv.buyer_id;
-          const { data: otherUserData } = await supabase
-            .from('profiles')
-            .select('display_name')
-            .eq('id', otherUserId)
-            .single();
+          let otherUserName = 'Anonymous User';
+          
+          try {
+            const { data: otherUserData } = await supabase
+              .from('safe_profiles')
+              .select('display_name')
+              .eq('id', otherUserId)
+              .maybeSingle();
+            
+            if (otherUserData?.display_name) {
+              otherUserName = otherUserData.display_name;
+            }
+          } catch (error) {
+            console.warn('Failed to fetch user profile:', error);
+          }
 
           return {
             id: conv.id,
@@ -113,7 +123,7 @@ const Conversations = () => {
               sender_id: lastMessage.sender_id
             } : undefined,
             unread_count: unreadCount || 0,
-            other_user_name: otherUserData?.display_name || 'Anonymous User'
+            other_user_name: otherUserName
           };
         })
       );
@@ -195,7 +205,7 @@ const Conversations = () => {
                 <Card 
                   key={conversation.id} 
                   className="hover:shadow-lg transition-all duration-300 cursor-pointer"
-                  onClick={() => navigate(`/chat?listing_id=${conversation.listing_id}`)}
+                  onClick={() => navigate(`/chat?conversation_id=${conversation.id}`)}
                 >
                   <CardContent className="p-4">
                     <div className="flex gap-4">
