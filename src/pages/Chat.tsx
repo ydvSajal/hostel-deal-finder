@@ -42,7 +42,12 @@ const Chat = () => {
   const listingId = searchParams.get('listing_id');
   const conversationId = searchParams.get('conversation_id');
 
-  const loadConversation = useCallback(async (conversationId: string) => {
+  const loadConversation = useCallback(async (conversationId: string, userId: string) => {
+    if (!userId) {
+      console.error('No user ID provided to loadConversation');
+      throw new Error('User authentication required');
+    }
+
     try {
       // Get conversation details with listing info
       const { data: convData, error: convError } = await supabase
@@ -68,7 +73,7 @@ const Chat = () => {
       // Load messages using the get_conversation_messages function for proper RLS
       const { data: messagesData, error: msgError } = await supabase.rpc('get_conversation_messages', {
         conversation_id: conversationId,
-        requesting_user_id: currentUser?.id || '',
+        requesting_user_id: userId,
         limit_count: 50,
         offset_count: 0
       });
@@ -116,9 +121,14 @@ const Chat = () => {
       });
       setLoading(false);
     }
-  }, [toast, currentUser]);
+  }, [toast]);
 
-  const startOrGetConversation = useCallback(async (listingId: string) => {
+  const startOrGetConversation = useCallback(async (listingId: string, userId: string) => {
+    if (!userId) {
+      console.error('No user ID provided to startOrGetConversation');
+      throw new Error('User authentication required');
+    }
+
     try {
       const { data, error } = await supabase.rpc('start_conversation', {
         p_listing_id: listingId
@@ -130,7 +140,7 @@ const Chat = () => {
       }
 
       if (data) {
-        await loadConversation(data);
+        await loadConversation(data, userId);
       }
     } catch (error: unknown) {
       console.error('Start or get conversation error:', error);
@@ -147,16 +157,23 @@ const Chat = () => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setCurrentUser(user);
+      
       if (!user) {
         setLoading(false);
         return;
       }
 
-      if (conversationId) {
-        await loadConversation(conversationId);
-      } else if (listingId) {
-        await startOrGetConversation(listingId);
-      } else {
+      // Now that we have the user, we can safely load conversations
+      try {
+        if (conversationId) {
+          await loadConversation(conversationId, user.id);
+        } else if (listingId) {
+          await startOrGetConversation(listingId, user.id);
+        } else {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error in useEffect:', error);
         setLoading(false);
       }
     };
