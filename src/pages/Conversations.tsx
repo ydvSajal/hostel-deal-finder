@@ -6,9 +6,11 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
+import { Check } from "lucide-react";
 
 interface ConversationWithDetails {
   id: string;
@@ -140,6 +142,37 @@ const Conversations = () => {
     }
   };
 
+  const markConversationAsRead = async (conversationId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click navigation
+    
+    if (!currentUser) return;
+
+    try {
+      const { error } = await supabase.rpc('mark_messages_read', {
+        conversation_id: conversationId,
+        user_id: currentUser.id
+      });
+
+      if (error) throw error;
+
+      // Update the local state to remove unread count
+      setConversations(prev => prev.map(conv => 
+        conv.id === conversationId ? { ...conv, unread_count: 0 } : conv
+      ));
+
+      toast({
+        title: "Messages marked as read",
+        description: "All messages in this conversation are now marked as read.",
+      });
+    } catch (error: unknown) {
+      toast({
+        title: "Error marking messages as read",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (!currentUser) {
     return (
       <div className="min-h-screen bg-background">
@@ -224,16 +257,27 @@ const Conversations = () => {
                               {otherUserRole}: {conversation.other_user_name} • ₹{conversation.listing.price}
                             </p>
                           </div>
-                          <div className="flex items-center gap-2">
-                            {conversation.unread_count > 0 && (
-                              <Badge variant="destructive" className="text-xs">
-                                {conversation.unread_count}
-                              </Badge>
-                            )}
-                            <span className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(conversation.updated_at), { addSuffix: true })}
-                            </span>
-                          </div>
+                           <div className="flex items-center gap-2">
+                             {conversation.unread_count > 0 && (
+                               <>
+                                 <Button
+                                   size="sm"
+                                   variant="ghost"
+                                   className="h-6 w-6 p-0 hover:bg-muted/50"
+                                   onClick={(e) => markConversationAsRead(conversation.id, e)}
+                                   title="Mark as read"
+                                 >
+                                   <Check className="h-3 w-3" />
+                                 </Button>
+                                 <Badge variant="destructive" className="text-xs">
+                                   {conversation.unread_count}
+                                 </Badge>
+                               </>
+                             )}
+                             <span className="text-xs text-muted-foreground">
+                               {formatDistanceToNow(new Date(conversation.updated_at), { addSuffix: true })}
+                             </span>
+                           </div>
                         </div>
                         {conversation.last_message && (
                           <div className="mt-2">
