@@ -2,13 +2,38 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { ShoppingBag, MessageCircle, Plus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const WelcomeBack = () => {
   const { user } = useAuth();
+  const [displayName, setDisplayName] = useState<string>('Student');
+  
+  useEffect(() => {
+    const fetchDisplayName = async () => {
+      if (!user?.id) return;
+      
+      try {
+        const { data, error } = await supabase.rpc('get_safe_profile', {
+          profile_user_id: user.id,
+          requesting_user_id: user.id
+        });
+        
+        if (data && data.length > 0 && data[0].display_name) {
+          setDisplayName(data[0].display_name);
+        } else {
+          setDisplayName(user.email?.split('@')[0] || 'Student');
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        setDisplayName(user.email?.split('@')[0] || 'Student');
+      }
+    };
+
+    fetchDisplayName();
+  }, [user]);
   
   if (!user) return null;
-
-  const displayName = user.email?.split('@')[0] || 'Student';
 
   return (
     <section className="mx-auto max-w-5xl px-4 pb-16">
