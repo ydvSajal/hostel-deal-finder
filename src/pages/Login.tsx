@@ -77,7 +77,13 @@ const Login = () => {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: config.emailRedirectUrl
+          shouldCreateUser: true,
+          emailRedirectTo: config.emailRedirectUrl,
+          data: {
+            display_name: email.split('@')[0],
+            college_email: email,
+            college_domain: 'bennett.edu.in'
+          }
         }
       });
       
@@ -86,7 +92,7 @@ const Login = () => {
       setOtpSent(true);
       toast({
         title: "OTP sent! 📧",
-        description: "Check your college email for the verification code.",
+        description: "Check your college email for the 6-digit verification code.",
       });
     } catch (err: unknown) {
       toast({
@@ -158,7 +164,7 @@ const Login = () => {
         <p className="mb-6 text-muted-foreground">
           {!otpSent 
             ? `Enter your @${config.collegeEmailDomain} email to receive a verification code.`
-            : `We've sent a 6-digit code to ${email}. Enter it below to login.`
+            : `We've sent a 6-digit code to ${email}. Check your email for the code (look for the numbers, not the magic link).`
           }
         </p>
         <div className="rounded-2xl border bg-card p-8 shadow-sm">
