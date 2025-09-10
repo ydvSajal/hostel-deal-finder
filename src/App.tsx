@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { HelmetProvider } from "react-helmet-async";
+import SecurityHeaders from "@/components/security/SecurityHeaders";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -23,6 +24,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
       <TooltipProvider>
+        <SecurityHeaders />
         <Toaster />
         <Sonner />
         <SpeedInsights />

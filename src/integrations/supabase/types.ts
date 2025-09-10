@@ -120,6 +120,30 @@ export type Database = {
           },
         ]
       }
+      otp_rate_limits: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          request_count: number
+          window_start: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          request_count?: number
+          window_start?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          request_count?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           content: string | null
@@ -143,6 +167,36 @@ export type Database = {
           id?: string
           title?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profile_audit_log: {
+        Row: {
+          changed_at: string
+          changed_by: string
+          field_changed: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          user_id: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string
+          field_changed: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          user_id: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string
+          field_changed?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
           user_id?: string
         }
         Relationships: []
@@ -188,30 +242,7 @@ export type Database = {
       }
     }
     Views: {
-      safe_profiles: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          created_at: string | null
-          display_name: string | null
-          id: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
-          display_name?: string | null
-          id?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
-          display_name?: string | null
-          id?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       are_conversation_participants: {
@@ -220,6 +251,10 @@ export type Database = {
       }
       check_display_name_unique: {
         Args: { display_name: string; user_id: string }
+        Returns: boolean
+      }
+      check_otp_rate_limit: {
+        Args: { user_email: string }
         Returns: boolean
       }
       cleanup_orphaned_avatars: {

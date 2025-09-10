@@ -17,7 +17,7 @@ import { useState, useEffect } from "react";
 import ProfileAvatar from "@/components/profile/ProfileAvatar";
 
 const Navbar = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -81,7 +81,9 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      const { error } = await logout();
+      if (error) throw error;
+      
       toast({
         title: "Logged out",
         description: "You've been successfully logged out.",

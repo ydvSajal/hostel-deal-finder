@@ -74,6 +74,21 @@ const Login = () => {
 
     setLoading(true);
     try {
+      // Check rate limiting
+      const { data: rateLimitOk } = await supabase.rpc('check_otp_rate_limit', { 
+        user_email: email.trim() 
+      });
+      
+      if (!rateLimitOk) {
+        toast({
+          title: "Rate Limit Exceeded",
+          description: "Too many OTP requests. Please wait an hour before trying again.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {

@@ -69,15 +69,48 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
+    if (!user) return;
+    
+    // Client-side validation
+    if (profileData.display_name && profileData.display_name.length < 2) {
+      toast({
+        title: "Validation Error",
+        description: "Display name must be at least 2 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (profileData.mobile_number && !/^\+?[6-9]\d{9}$/.test(profileData.mobile_number)) {
+      toast({
+        title: "Validation Error", 
+        description: "Please enter a valid mobile number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (profileData.bio && profileData.bio.length > 500) {
+      toast({
+        title: "Validation Error",
+        description: "Bio cannot exceed 500 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setSaving(true);
     try {
-      setSaving(true);
-      
       const { error } = await supabase
         .from('profiles')
         .upsert({
-          id: user!.id,
-          ...profileData,
-          updated_at: new Date().toISOString(),
+          id: user.id,
+          display_name: profileData.display_name?.trim(),
+          bio: profileData.bio?.trim(),
+          full_name: profileData.full_name?.trim(),
+          mobile_number: profileData.mobile_number?.trim(),
+          hostel_name: profileData.hostel_name?.trim(),
+          room_number: profileData.room_number?.trim(),
         });
 
       if (error) throw error;
@@ -86,10 +119,10 @@ const Profile = () => {
         title: "Success",
         description: "Profile updated successfully!",
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update profile",
+        description: error.message,
         variant: "destructive",
       });
     } finally {

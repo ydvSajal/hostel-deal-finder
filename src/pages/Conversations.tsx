@@ -95,14 +95,13 @@ const Conversations = () => {
           let otherUserName = 'Anonymous User';
           
           try {
-            const { data: otherUserData } = await supabase
-              .from('safe_profiles')
-              .select('display_name')
-              .eq('id', otherUserId)
-              .maybeSingle();
+            const { data: otherUserData } = await supabase.rpc('get_safe_profile', {
+              profile_user_id: otherUserId,
+              requesting_user_id: userId
+            });
             
-            if (otherUserData?.display_name) {
-              otherUserName = otherUserData.display_name;
+            if (otherUserData && otherUserData.length > 0) {
+              otherUserName = otherUserData[0].display_name || 'Anonymous User';
             }
           } catch (error) {
             console.warn('Failed to fetch user profile:', error);
