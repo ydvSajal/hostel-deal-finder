@@ -22,12 +22,32 @@ const Listings = () => {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUserHash, setCurrentUserHash] = useState<string | null>(null);
+
+  // Function to generate user hash (same as backend)
+  const generateUserHash = async (userId: string): Promise<string> => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(userId);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  };
 
   useEffect(() => {
     const loadData = async () => {
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       setCurrentUser(user);
+
+      // Generate current user hash if user exists
+      if (user) {
+        try {
+          const userHash = await generateUserHash(user.id);
+          setCurrentUserHash(userHash);
+        } catch (error) {
+          console.error('Error generating user hash:', error);
+        }
+      }
 
       // Load listings using secure function
       const { data: listingsData, error } = await supabase
@@ -95,11 +115,17 @@ const Listings = () => {
                 )}
                 <div className="mt-3">
                   {currentUser ? (
-                    <Button asChild size="sm" className="w-full bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white hover:shadow-glow transition-all duration-300">
-                      <Link to={`/chat?listing_id=${listing.id}`}>
-                        💬 Chat with seller
-                      </Link>
-                    </Button>
+                    currentUserHash === listing.seller_hash ? (
+                      <Button size="sm" variant="outline" className="w-full" disabled>
+                        📝 Your listing
+                      </Button>
+                    ) : (
+                      <Button asChild size="sm" className="w-full bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white hover:shadow-glow transition-all duration-300">
+                        <Link to={`/chat?listing_id=${listing.id}`}>
+                          💬 Chat with seller
+                        </Link>
+                      </Button>
+                    )
                   ) : (
                     <Button asChild size="sm" variant="outline" className="w-full">
                       <Link to="/login">
