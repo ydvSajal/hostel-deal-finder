@@ -7,10 +7,11 @@ import Footer from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
-import { Check } from "lucide-react";
+import { Check, Trash2 } from "lucide-react";
 
 interface ConversationWithDetails {
   id: string;
@@ -37,6 +38,8 @@ const Conversations = () => {
   const [conversations, setConversations] = useState<ConversationWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -173,6 +176,51 @@ const Conversations = () => {
     }
   };
 
+  const handleDeleteConversation = (conversationId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click navigation
+    setConversationToDelete(conversationId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteConversation = async () => {
+    if (!conversationToDelete || !currentUser) return;
+
+    try {
+      // First delete all messages in the conversation
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .delete()
+        .eq('conversation_id', conversationToDelete);
+
+      if (messagesError) throw messagesError;
+
+      // Then delete the conversation
+      const { error: conversationError } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationToDelete);
+
+      if (conversationError) throw conversationError;
+
+      // Update local state
+      setConversations(prev => prev.filter(conv => conv.id !== conversationToDelete));
+
+      toast({
+        title: "Conversation deleted",
+        description: "The conversation and all its messages have been deleted.",
+      });
+    } catch (error: unknown) {
+      toast({
+        title: "Error deleting conversation",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setDeleteDialogOpen(false);
+      setConversationToDelete(null);
+    }
+  };
+
   if (!currentUser) {
     return (
       <div className="min-h-screen bg-background">
@@ -274,6 +322,15 @@ const Conversations = () => {
                                  </Badge>
                                </>
                              )}
+                             <Button
+                               size="sm"
+                               variant="ghost"
+                               className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
+                               onClick={(e) => handleDeleteConversation(conversation.id, e)}
+                               title="Delete conversation"
+                             >
+                               <Trash2 className="h-3 w-3" />
+                             </Button>
                              <span className="text-xs text-muted-foreground">
                                {formatDistanceToNow(new Date(conversation.updated_at), { addSuffix: true })}
                              </span>
@@ -297,6 +354,26 @@ const Conversations = () => {
         )}
       </main>
       <Footer />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Conversation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this conversation? This action cannot be undone and will delete all messages in this conversation.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteConversation}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
