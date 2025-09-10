@@ -45,14 +45,19 @@ const MyListingsDropdown = () => {
   const CACHE_DURATION = 30 * 1000;
 
   const loadUserListings = useCallback(async (force = false) => {
-    if (!user) return;
+    if (!user) {
+      console.log('No user, skipping load');
+      return;
+    }
     
     // Check cache validity
     const now = Date.now();
     if (!force && lastFetch && (now - lastFetch) < CACHE_DURATION) {
+      console.log('Using cached data, not reloading');
       return; // Use cached data
     }
     
+    console.log('Loading user listings...');
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -70,6 +75,7 @@ const MyListingsDropdown = () => {
           variant: "destructive"
         });
       } else {
+        console.log('Loaded listings:', data?.length || 0);
         setListings(data || []);
         setLastFetch(now);
       }
@@ -83,14 +89,14 @@ const MyListingsDropdown = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, lastFetch, CACHE_DURATION]);
+  }, [user, CACHE_DURATION]); // Removed lastFetch from dependencies to prevent loops
 
-  // Load listings only on initial mount
+  // Load listings only on initial mount and user change
   useEffect(() => {
     if (user) {
       loadUserListings();
     }
-  }, [user, loadUserListings]);
+  }, [user]); // Removed loadUserListings from dependencies to prevent infinite loops
 
   const handleDeleteListing = useCallback(async (listingId: string) => {
     if (!user || deletingListingId) {
@@ -143,15 +149,19 @@ const MyListingsDropdown = () => {
   }, [user, deletingListingId]);
 
   const handleDropdownOpenChange = useCallback((open: boolean) => {
+    console.log('Dropdown open change:', open);
     setIsOpen(open);
     if (open) {
       // Only reload if cache is stale
       const now = Date.now();
       if (!lastFetch || (now - lastFetch) > CACHE_DURATION) {
+        console.log('Cache stale, reloading listings');
         loadUserListings();
+      } else {
+        console.log('Using cached listings');
       }
     }
-  }, [lastFetch, CACHE_DURATION, loadUserListings]);
+  }, [CACHE_DURATION, lastFetch]); // Removed loadUserListings from dependencies
 
   // Memoize the listings count for display
   const listingsCount = useMemo(() => listings.length, [listings.length]);
@@ -179,7 +189,12 @@ const MyListingsDropdown = () => {
               <Button 
                 variant="ghost" 
                 size="sm"
-                onClick={() => loadUserListings(true)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Manual refresh clicked');
+                  loadUserListings(true);
+                }}
                 disabled={loading}
                 className="h-6 w-6 p-0"
               >
