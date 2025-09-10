@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 // Security headers component to add client-side security measures
 export const SecurityHeaders = () => {
