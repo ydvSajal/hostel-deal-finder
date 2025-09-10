@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { ShoppingBasket, LogOut, MessageCircle, User, Settings } from "lucide-react";
+import { ShoppingBasket, LogOut, MessageCircle, User, Settings, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,7 +15,6 @@ import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import ProfileAvatar from "@/components/profile/ProfileAvatar";
-import MyListingsDropdown from "@/components/listings/MyListingsDropdown";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -118,7 +117,10 @@ const Navbar = () => {
                   </Badge>
                 )}
               </NavLink>
-              <MyListingsDropdown />
+              <NavLink to="/my-listings" className={({ isActive }) => `flex items-center gap-1 ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                <Store className="h-4 w-4" />
+                My Listings
+              </NavLink>
             </>
           )}
         </div>

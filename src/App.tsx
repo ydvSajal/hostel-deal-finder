@@ -18,6 +18,7 @@ import TestChat from "./pages/TestChat";
 import Privacy from "./pages/Privacy";
 import EmailConfirmed from "./pages/EmailConfirmed";
 import Profile from "./pages/Profile";
+import MyListings from "./pages/MyListings";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App: React.FC = () => {
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/email-confirmed" element={<EmailConfirmed />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/my-listings" element={<MyListings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
