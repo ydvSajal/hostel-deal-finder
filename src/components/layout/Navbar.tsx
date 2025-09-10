@@ -15,6 +15,7 @@ import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import ProfileAvatar from "@/components/profile/ProfileAvatar";
+import MyListingsDropdown from "@/components/listings/MyListingsDropdown";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -107,15 +108,18 @@ const Navbar = () => {
         <div className="hidden items-center gap-4 md:flex">
           <NavLink to="/listings" className={({ isActive }) => isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}>Browse</NavLink>
           {user && (
-            <NavLink to="/conversations" className={({ isActive }) => `relative flex items-center gap-1 ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-              <MessageCircle className="h-4 w-4" />
-              Messages
-              {unreadCount > 0 && (
-                <Badge variant="destructive" className="text-xs px-1 py-0 min-w-[1.25rem] h-5">
-                  {unreadCount > 99 ? '99+' : unreadCount}
-                </Badge>
-              )}
-            </NavLink>
+            <>
+              <NavLink to="/conversations" className={({ isActive }) => `relative flex items-center gap-1 ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                <MessageCircle className="h-4 w-4" />
+                Messages
+                {unreadCount > 0 && (
+                  <Badge variant="destructive" className="text-xs px-1 py-0 min-w-[1.25rem] h-5">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </Badge>
+                )}
+              </NavLink>
+              <MyListingsDropdown />
+            </>
           )}
         </div>
 
