@@ -17,6 +17,8 @@ const Login = () => {
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const [canResend, setCanResend] = useState(true);
 
   useEffect(() => {
     // Check if user came from email confirmation
@@ -30,6 +32,19 @@ const Login = () => {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
+
+  // Countdown timer effect
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+    } else if (countdown === 0 && !canResend) {
+      setCanResend(true);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown, canResend]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -82,10 +97,12 @@ const Login = () => {
       if (!rateLimitOk) {
         toast({
           title: "Rate Limit Exceeded",
-          description: "Too many OTP requests. Please wait an hour before trying again.",
+          description: "Too many OTP requests. Please wait 60 seconds before trying again.",
           variant: "destructive",
         });
         setLoading(false);
+        setCountdown(60);
+        setCanResend(false);
         return;
       }
 
@@ -105,6 +122,8 @@ const Login = () => {
       if (error) throw error;
       
       setOtpSent(true);
+      setCountdown(60);
+      setCanResend(false);
       toast({
         title: "OTP sent! 📧",
         description: "Check your college email for the 6-digit verification code.",
@@ -230,8 +249,8 @@ const Login = () => {
                 <Button type="button" variant="outline" onClick={handleBack} className="flex-1">
                   Back
                 </Button>
-                <Button type="button" variant="outline" onClick={sendOTP} disabled={loading} className="flex-1">
-                  Resend OTP
+                <Button type="button" variant="outline" onClick={sendOTP} disabled={loading || !canResend} className="flex-1">
+                  {canResend ? "Resend OTP" : `Resend in ${countdown}s`}
                 </Button>
               </div>
             </form>
