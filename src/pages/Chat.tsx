@@ -59,11 +59,11 @@ const Chat = () => {
           listing:listings(title, price, seller_id)
         `)
         .eq('id', conversationId)
-        .single();
+        .maybeSingle();
 
       if (convError) {
         console.error('Conversation error:', convError);
-        throw new Error('Failed to load conversation');
+        throw new Error(`Failed to load conversation: ${convError.message}`);
       }
 
       if (!convData) {
