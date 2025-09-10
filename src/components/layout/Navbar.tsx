@@ -81,9 +81,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const { error } = await logout();
-      if (error) throw error;
-      
+      await logout();
       toast({
         title: "Logged out",
         description: "You've been successfully logged out.",
