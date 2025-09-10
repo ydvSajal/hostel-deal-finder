@@ -1,3 +1,4 @@
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,33 +21,34 @@ import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <HelmetProvider>
-      <TooltipProvider>
-        <BrowserRouter>
-          <SecurityHeaders />
-          <Toaster />
-          <Sonner />
-          <SpeedInsights />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/listings" element={<Listings />} />
-            <Route path="/sell" element={<Sell />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/conversations" element={<Conversations />} />
-            <Route path="/test-chat" element={<TestChat />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/email-confirmed" element={<EmailConfirmed />} />
-            <Route path="/profile" element={<Profile />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </HelmetProvider>
-  </QueryClientProvider>
-);
+const App: React.FC = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <HelmetProvider>
+        <TooltipProvider>
+          <BrowserRouter>
+            <SecurityHeaders />
+            <Toaster />
+            <Sonner />
+            <SpeedInsights />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/listings" element={<Listings />} />
+              <Route path="/sell" element={<Sell />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/conversations" element={<Conversations />} />
+              <Route path="/test-chat" element={<TestChat />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/email-confirmed" element={<EmailConfirmed />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </HelmetProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
