@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Store, Trash2, Plus, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,46 +37,38 @@ const MyListingsDropdown = () => {
   const [listings, setListings] = useState<UserListing[]>([]);
   const [loading, setLoading] = useState(false);
   const [deleteListingId, setDeleteListingId] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [deletingListingId, setDeletingListingId] = useState<string | null>(null);
+  const [lastFetch, setLastFetch] = useState<number>(0);
   const [isOpen, setIsOpen] = useState(false);
-  
-  // Use refs to avoid dependency issues
-  const lastFetchRef = useRef<number>(0);
-  const isMountedRef = useRef(true);
-  const loadingRef = useRef(false);
-  
-  const CACHE_DURATION = 30000; // 30 seconds
 
-  // Simple function without useCallback to avoid dependency issues
-  const loadUserListings = async (force = false) => {
-    if (!user || loadingRef.current) {
-      console.log('Load blocked: no user or already loading');
+  // Cache duration: 30 seconds
+  const CACHE_DURATION = 30 * 1000;
+
+  const loadUserListings = useCallback(async (force = false) => {
+    if (!user) {
+      console.log('No user, skipping load');
       return;
     }
     
-    // Check cache
+    // Check cache validity
     const now = Date.now();
-    if (!force && lastFetchRef.current && (now - lastFetchRef.current) < CACHE_DURATION) {
-      console.log('Using cached listings');
-      return;
+    if (!force && lastFetch && (now - lastFetch) < CACHE_DURATION) {
+      console.log('Using cached data, not reloading');
+      return; // Use cached data
     }
     
     console.log('Loading user listings...');
-    loadingRef.current = true;
     setLoading(true);
-    
     try {
       const { data, error } = await supabase
         .from('listings')
         .select('id, title, price, image_url, created_at')
         .eq('seller_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(5);
-
-      if (!isMountedRef.current) return;
+        .limit(5); // Reduced limit for better performance
 
       if (error) {
-        console.error('Error loading listings:', error);
+        console.error('Error loading user listings:', error);
         toast({
           title: "Error",
           description: "Failed to load your listings.",
@@ -85,43 +77,42 @@ const MyListingsDropdown = () => {
       } else {
         console.log('Loaded listings:', data?.length || 0);
         setListings(data || []);
-        lastFetchRef.current = now;
+        setLastFetch(now);
       }
     } catch (error) {
-      console.error('Error loading listings:', error);
-      if (isMountedRef.current) {
-        toast({
-          title: "Error",
-          description: "Something went wrong. Please try again.",
-          variant: "destructive"
-        });
-      }
+      console.error('Error loading user listings:', error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive"
+      });
     } finally {
-      if (isMountedRef.current) {
-        setLoading(false);
-      }
-      loadingRef.current = false;
+      setLoading(false);
     }
-  };
+  }, [user, CACHE_DURATION]); // Removed lastFetch from dependencies to prevent loops
 
-  // Simple delete function without useCallback
-  const handleDeleteListing = async (listingId: string) => {
-    if (!user || isDeleting) {
-      console.log('Delete blocked: no user or already deleting');
-      return;
+  // Load listings only on initial mount and user change
+  useEffect(() => {
+    if (user) {
+      loadUserListings();
+    }
+  }, [user]); // Removed loadUserListings from dependencies to prevent infinite loops
+
+  const handleDeleteListing = useCallback(async (listingId: string) => {
+    if (!user || deletingListingId) {
+      console.log('Delete blocked: user or already deleting', { user: !!user, deletingListingId });
+      return; // Prevent multiple simultaneous deletes
     }
     
-    console.log('Starting delete for:', listingId);
-    setIsDeleting(true);
+    console.log('Starting delete for listing:', listingId);
+    setDeletingListingId(listingId);
     
     try {
       const { error } = await supabase
         .from('listings')
         .delete()
         .eq('id', listingId)
-        .eq('seller_id', user.id);
-
-      if (!isMountedRef.current) return;
+        .eq('seller_id', user.id); // Extra security check
 
       if (error) {
         console.error('Delete error:', error);
@@ -131,9 +122,13 @@ const MyListingsDropdown = () => {
           variant: "destructive"
         });
       } else {
-        console.log('Delete successful');
-        // Update listings immediately
-        setListings(prev => prev.filter(listing => listing.id !== listingId));
+        console.log('Delete successful, updating UI');
+        // Optimistically update UI
+        setListings(prev => {
+          const newListings = prev.filter(listing => listing.id !== listingId);
+          console.log('Updated listings count:', newListings.length);
+          return newListings;
+        });
         toast({
           title: "Success",
           description: "Listing deleted successfully.",
@@ -141,52 +136,41 @@ const MyListingsDropdown = () => {
       }
     } catch (error) {
       console.error('Delete error:', error);
-      if (isMountedRef.current) {
-        toast({
-          title: "Error",
-          description: "Failed to delete listing. Please try again.",
-          variant: "destructive"
-        });
-      }
+      toast({
+        title: "Error",
+        description: "Failed to delete listing. Please try again.",
+        variant: "destructive"
+      });
     } finally {
-      if (isMountedRef.current) {
-        setIsDeleting(false);
-        setDeleteListingId(null);
-      }
+      console.log('Delete operation finished');
+      setDeletingListingId(null);
+      setDeleteListingId(null);
     }
-  };
+  }, [user, deletingListingId]);
 
-  // Simple dropdown handler
-  const handleDropdownChange = (open: boolean) => {
-    console.log('Dropdown toggled:', open);
+  const handleDropdownOpenChange = useCallback((open: boolean) => {
+    console.log('Dropdown open change:', open);
     setIsOpen(open);
-    
-    if (open && user) {
-      // Check if we need to reload
+    if (open) {
+      // Only reload if cache is stale
       const now = Date.now();
-      if (!lastFetchRef.current || (now - lastFetchRef.current) > CACHE_DURATION) {
+      if (!lastFetch || (now - lastFetch) > CACHE_DURATION) {
+        console.log('Cache stale, reloading listings');
         loadUserListings();
+      } else {
+        console.log('Using cached listings');
       }
     }
-  };
+  }, [CACHE_DURATION, lastFetch]); // Removed loadUserListings from dependencies
 
-  // Load listings on user change only
-  useEffect(() => {
-    if (user) {
-      loadUserListings();
-    }
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, [user?.id]); // Only depend on user ID
+  // Memoize the listings count for display
+  const listingsCount = useMemo(() => listings.length, [listings.length]);
 
   if (!user) return null;
 
-  const listingsCount = listings.length;
-
   return (
     <>
-      <DropdownMenu open={isOpen} onOpenChange={handleDropdownChange}>
+      <DropdownMenu open={isOpen} onOpenChange={handleDropdownOpenChange}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="flex items-center gap-1 text-muted-foreground hover:text-foreground">
             <Store className="h-4 w-4" />
@@ -198,7 +182,7 @@ const MyListingsDropdown = () => {
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-80 bg-background border shadow-lg z-50" align="end">
+        <DropdownMenuContent className="w-80 bg-background border shadow-lg" align="end">
           <DropdownMenuLabel className="flex items-center justify-between">
             <span>My Listings ({listingsCount})</span>
             <div className="flex gap-1">
@@ -211,7 +195,7 @@ const MyListingsDropdown = () => {
                   console.log('Manual refresh clicked');
                   loadUserListings(true);
                 }}
-                disabled={loading || isDeleting}
+                disabled={loading}
                 className="h-6 w-6 p-0"
               >
                 <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
@@ -242,42 +226,44 @@ const MyListingsDropdown = () => {
               {listings.map((listing) => (
                 <DropdownMenuItem key={listing.id} className="p-0">
                   <div className="flex items-center gap-3 w-full p-3 hover:bg-muted rounded">
-                    <img
-                      src={listing.image_url || "/placeholder.svg"}
-                      alt={listing.title}
-                      loading="lazy"
-                      className="h-10 w-10 rounded object-cover flex-shrink-0"
-                      onError={(e) => {
-                        e.currentTarget.src = "/placeholder.svg";
-                      }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate" title={listing.title}>
-                        {listing.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground">₹{listing.price}</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={isDeleting}
-                      className="h-6 w-6 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 disabled:opacity-50"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log('Delete button clicked for:', listing.id);
-                        if (!isDeleting) {
-                          setDeleteListingId(listing.id);
-                        }
-                      }}
-                      title={isDeleting ? "Deleting..." : "Delete listing"}
-                    >
-                      {isDeleting && deleteListingId === listing.id ? (
-                        <RefreshCw className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-3 w-3" />
-                      )}
-                    </Button>
+                     <img
+                       src={listing.image_url || "/placeholder.svg"}
+                       alt={listing.title}
+                       loading="lazy"
+                       className="h-10 w-10 rounded object-cover flex-shrink-0"
+                       onError={(e) => {
+                         e.currentTarget.src = "/placeholder.svg";
+                       }}
+                     />
+                     <div className="flex-1 min-w-0">
+                       <p className="text-sm font-medium truncate" title={listing.title}>
+                         {listing.title}
+                       </p>
+                       <p className="text-xs text-muted-foreground">₹{listing.price}</p>
+                     </div>
+                     <Button
+                       variant="ghost"
+                       size="sm"
+                       disabled={deletingListingId === listing.id}
+                       className="h-6 w-6 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                       onClick={(e) => {
+                         e.preventDefault();
+                         e.stopPropagation();
+                         console.log('Delete button clicked for:', listing.id);
+                         if (deletingListingId) {
+                           console.log('Delete already in progress, ignoring');
+                           return;
+                         }
+                         setDeleteListingId(listing.id);
+                       }}
+                       title={deletingListingId === listing.id ? "Deleting..." : "Delete listing"}
+                     >
+                       {deletingListingId === listing.id ? (
+                         <RefreshCw className="h-3 w-3 animate-spin" />
+                       ) : (
+                         <Trash2 className="h-3 w-3" />
+                       )}
+                     </Button>
                   </div>
                 </DropdownMenuItem>
               ))}
@@ -286,14 +272,7 @@ const MyListingsDropdown = () => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog 
-        open={!!deleteListingId} 
-        onOpenChange={(open) => {
-          if (!open && !isDeleting) {
-            setDeleteListingId(null);
-          }
-        }}
-      >
+      <AlertDialog open={!!deleteListingId} onOpenChange={() => setDeleteListingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Listing</AlertDialogTitle>
@@ -302,18 +281,20 @@ const MyListingsDropdown = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              disabled={isDeleting}
+              disabled={!!deletingListingId}
               onClick={() => {
-                if (deleteListingId && !isDeleting) {
+                if (deleteListingId && !deletingListingId) {
                   console.log('Confirm delete clicked for:', deleteListingId);
                   handleDeleteListing(deleteListingId);
+                } else {
+                  console.log('Delete confirm blocked - already deleting');
                 }
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {deletingListingId ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
