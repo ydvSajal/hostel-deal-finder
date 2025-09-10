@@ -37,6 +37,7 @@ const MyListingsDropdown = () => {
   const [listings, setListings] = useState<UserListing[]>([]);
   const [loading, setLoading] = useState(false);
   const [deleteListingId, setDeleteListingId] = useState<string | null>(null);
+  const [deletingListingId, setDeletingListingId] = useState<string | null>(null);
   const [lastFetch, setLastFetch] = useState<number>(0);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -92,7 +93,13 @@ const MyListingsDropdown = () => {
   }, [user, loadUserListings]);
 
   const handleDeleteListing = useCallback(async (listingId: string) => {
-    if (!user) return;
+    if (!user || deletingListingId) {
+      console.log('Delete blocked: user or already deleting', { user: !!user, deletingListingId });
+      return; // Prevent multiple simultaneous deletes
+    }
+    
+    console.log('Starting delete for listing:', listingId);
+    setDeletingListingId(listingId);
     
     try {
       const { error } = await supabase
@@ -109,8 +116,13 @@ const MyListingsDropdown = () => {
           variant: "destructive"
         });
       } else {
+        console.log('Delete successful, updating UI');
         // Optimistically update UI
-        setListings(prev => prev.filter(listing => listing.id !== listingId));
+        setListings(prev => {
+          const newListings = prev.filter(listing => listing.id !== listingId);
+          console.log('Updated listings count:', newListings.length);
+          return newListings;
+        });
         toast({
           title: "Success",
           description: "Listing deleted successfully.",
@@ -124,9 +136,11 @@ const MyListingsDropdown = () => {
         variant: "destructive"
       });
     } finally {
+      console.log('Delete operation finished');
+      setDeletingListingId(null);
       setDeleteListingId(null);
     }
-  }, [user]);
+  }, [user, deletingListingId]);
 
   const handleDropdownOpenChange = useCallback((open: boolean) => {
     setIsOpen(open);
@@ -215,15 +229,25 @@ const MyListingsDropdown = () => {
                      <Button
                        variant="ghost"
                        size="sm"
-                       className="h-6 w-6 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                       disabled={deletingListingId === listing.id}
+                       className="h-6 w-6 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 disabled:opacity-50"
                        onClick={(e) => {
                          e.preventDefault();
                          e.stopPropagation();
+                         console.log('Delete button clicked for:', listing.id);
+                         if (deletingListingId) {
+                           console.log('Delete already in progress, ignoring');
+                           return;
+                         }
                          setDeleteListingId(listing.id);
                        }}
-                       title="Delete listing"
+                       title={deletingListingId === listing.id ? "Deleting..." : "Delete listing"}
                      >
-                       <Trash2 className="h-3 w-3" />
+                       {deletingListingId === listing.id ? (
+                         <RefreshCw className="h-3 w-3 animate-spin" />
+                       ) : (
+                         <Trash2 className="h-3 w-3" />
+                       )}
                      </Button>
                   </div>
                 </DropdownMenuItem>
@@ -244,10 +268,18 @@ const MyListingsDropdown = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteListingId && handleDeleteListing(deleteListingId)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={!!deletingListingId}
+              onClick={() => {
+                if (deleteListingId && !deletingListingId) {
+                  console.log('Confirm delete clicked for:', deleteListingId);
+                  handleDeleteListing(deleteListingId);
+                } else {
+                  console.log('Delete confirm blocked - already deleting');
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
             >
-              Delete
+              {deletingListingId ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
