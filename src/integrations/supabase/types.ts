@@ -292,6 +292,12 @@ export type Database = {
         Args: { image_url: string }
         Returns: undefined
       }
+      get_anonymized_seller_info: {
+        Args: { listing_id: string }
+        Returns: {
+          seller_hash: string
+        }[]
+      }
       get_conversation_messages: {
         Args: {
           conversation_id: string
