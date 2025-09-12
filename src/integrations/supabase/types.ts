@@ -284,6 +284,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      cleanup_orphaned_product_images: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      delete_product_image_from_storage: {
+        Args: { image_url: string }
+        Returns: undefined
+      }
       get_conversation_messages: {
         Args: {
           conversation_id: string
