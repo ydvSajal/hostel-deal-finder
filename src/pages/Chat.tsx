@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useSearchParams, Navigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams, Navigate, useNavigate } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check } from "lucide-react";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 interface Message {
   id: string;
@@ -31,12 +31,14 @@ interface Conversation {
   };
 }
 
-const Chat = () => {
+const ChatContent = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [messageInput, setMessageInput] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -44,13 +46,14 @@ const Chat = () => {
   const listingId = searchParams.get('listing_id');
   const conversationId = searchParams.get('conversation_id');
 
-  const loadConversation = useCallback(async (conversationId: string, userId: string) => {
-    if (!userId) {
-      console.error('No user ID provided to loadConversation');
-      throw new Error('User authentication required');
-    }
-
+  const loadConversation = async (conversationId: string, userId: string) => {
     try {
+      if (!conversationId || !userId) {
+        throw new Error('Missing conversation ID or user ID');
+      }
+
+      setError(null);
+
       // Get conversation details with listing info
       const { data: convData, error: convError } = await supabase
         .from('conversations')
@@ -62,7 +65,6 @@ const Chat = () => {
         .maybeSingle();
 
       if (convError) {
-        console.error('Conversation error:', convError);
         throw new Error(`Failed to load conversation: ${convError.message}`);
       }
 
@@ -70,152 +72,210 @@ const Chat = () => {
         throw new Error('Conversation not found');
       }
 
+      // Check if user is participant
+      if (convData.buyer_id !== userId && convData.seller_id !== userId) {
+        throw new Error('Access denied: You are not a participant in this conversation');
+      }
+
       setConversation(convData);
 
-      // Load messages using the get_conversation_messages function for proper RLS
-      const { data: messagesData, error: msgError } = await supabase.rpc('get_conversation_messages', {
-        conversation_id: conversationId,
-        requesting_user_id: userId,
-        limit_count: 50,
-        offset_count: 0
-      });
+      // Load messages with error handling
+      const { data: messagesData, error: msgError } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true })
+        .limit(50);
 
       if (msgError) {
         console.error('Messages error:', msgError);
-        throw msgError;
+        // Don't fail completely if messages can't load, just show empty conversation
+        setMessages([]);
+        toast({
+          title: "Warning",
+          description: "Could not load message history",
+          variant: "destructive"
+        });
+      } else {
+        setMessages(messagesData || []);
       }
 
-      // Transform the messages to match our interface
-      const transformedMessages = (messagesData || []).map((msg: any) => ({
-        id: msg.id,
-        sender_id: msg.sender_id,
-        content: msg.content,
-        created_at: msg.created_at,
-        read_at: msg.read_at
-      }));
-
-      setMessages(transformedMessages);
-
-      // Subscribe to new messages
-      const channel = supabase
-        .channel(`messages:${conversationId}`)
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `conversation_id=eq.${conversationId}`
-        }, (payload) => {
-          const newMessage = payload.new as Message;
-          setMessages(prev => [...prev, newMessage]);
-        })
-        .subscribe();
-
       setLoading(false);
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
     } catch (error: unknown) {
       console.error('Load conversation error:', error);
-      toast({
-        title: "Error loading conversation",
-        description: error instanceof Error ? error.message : "Unable to load conversation",
-        variant: "destructive"
-      });
+      const errorMessage = error instanceof Error ? error.message : "Unable to load conversation";
+      setError(errorMessage);
       setLoading(false);
     }
-  }, [toast]);
+  };
 
-  const startOrGetConversation = useCallback(async (listingId: string, userId: string) => {
-    if (!userId) {
-      console.error('No user ID provided to startOrGetConversation');
-      throw new Error('User authentication required');
-    }
-
+  const startOrGetConversation = async (listingId: string, userId: string) => {
     try {
-      const { data, error } = await supabase.rpc('start_conversation', {
-        p_listing_id: listingId
-      });
-
-      if (error) {
-        console.error('Start conversation error:', error);
-        throw error;
+      if (!listingId || !userId) {
+        throw new Error('Missing listing ID or user ID');
       }
 
-      if (data) {
-        await loadConversation(data, userId);
-      }
-    } catch (error: unknown) {
-      console.error('Start or get conversation error:', error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Unable to start conversation",
-        variant: "destructive"
-      });
-      setLoading(false);
-    }
-  }, [toast, loadConversation]);
+      setError(null);
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setCurrentUser(user);
-      
-      if (!user) {
-        setLoading(false);
+      // Get listing info first
+      const { data: listing, error: listingError } = await supabase
+        .from('listings')
+        .select('*')
+        .eq('id', listingId)
+        .single();
+
+      if (listingError) {
+        throw new Error(`Failed to load listing: ${listingError.message}`);
+      }
+
+      if (!listing) {
+        throw new Error('Listing not found');
+      }
+
+      // Check if user is trying to message their own listing
+      if (listing.seller_id === userId) {
+        setError("You cannot start a conversation with your own listing");
+        toast({
+          title: "Cannot message yourself",
+          description: "Redirecting to listings...",
+          variant: "destructive"
+        });
+        setTimeout(() => {
+          navigate('/listings');
+        }, 2000);
         return;
       }
 
-      // Now that we have the user, we can safely load conversations
+      // Check for existing conversation
+      const { data: existingConv, error: convError } = await supabase
+        .from('conversations')
+        .select('*')
+        .eq('listing_id', listingId)
+        .eq('buyer_id', userId)
+        .eq('seller_id', listing.seller_id)
+        .maybeSingle();
+
+      if (convError) {
+        throw new Error(`Failed to check existing conversation: ${convError.message}`);
+      }
+
+      let conversationId: string;
+
+      if (existingConv) {
+        conversationId = existingConv.id;
+      } else {
+        // Create new conversation
+        const { data: newConv, error: createError } = await supabase
+          .from('conversations')
+          .insert({
+            listing_id: listingId,
+            buyer_id: userId,
+            seller_id: listing.seller_id
+          })
+          .select()
+          .single();
+
+        if (createError) {
+          throw new Error(`Failed to create conversation: ${createError.message}`);
+        }
+
+        if (!newConv) {
+          throw new Error('Failed to create conversation - no data returned');
+        }
+
+        conversationId = newConv.id;
+      }
+
+      await loadConversation(conversationId, userId);
+    } catch (error: unknown) {
+      console.error('Start or get conversation error:', error);
+      const errorMessage = error instanceof Error ? error.message : "Unable to start conversation";
+      setError(errorMessage);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const initializeChat = async () => {
       try {
+        setLoading(true);
+        setError(null);
+
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+        if (userError) {
+          throw new Error(`Authentication error: ${userError.message}`);
+        }
+
+        if (!isMounted) return;
+        setCurrentUser(user);
+
+        if (!user) {
+          setLoading(false);
+          return;
+        }
+
         if (conversationId) {
           await loadConversation(conversationId, user.id);
         } else if (listingId) {
           await startOrGetConversation(listingId, user.id);
         } else {
+          setError("No conversation or listing ID provided");
           setLoading(false);
         }
       } catch (error) {
-        console.error('Error in useEffect:', error);
-        setLoading(false);
+        console.error('Error initializing chat:', error);
+        if (isMounted) {
+          setError(error instanceof Error ? error.message : "Failed to initialize chat");
+          setLoading(false);
+        }
       }
     };
 
-    getUser();
-  }, [listingId, conversationId, startOrGetConversation, loadConversation]);
+    initializeChat();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [listingId, conversationId]);
+
+  // Handle real-time message subscription
+  useEffect(() => {
+    if (!conversation?.id || !currentUser) return;
+
+    const channel = supabase
+      .channel(`messages:${conversation.id}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: `conversation_id=eq.${conversation.id}`
+      }, (payload) => {
+        const newMessage = payload.new as Message;
+        setMessages(prev => [...prev, newMessage]);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [conversation?.id, currentUser?.id]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  const markAsRead = async (messageId: string) => {
-    if (!conversation || !currentUser) return;
-
-    try {
-      const { error } = await supabase.rpc('mark_messages_read', {
-        conversation_id: conversation.id,
-        user_id: currentUser.id
-      });
-
-      if (error) throw error;
-
-      // Update the local state to reflect the read status
-      setMessages(prev => prev.map(msg => 
-        msg.sender_id !== currentUser.id ? { ...msg, read_at: new Date().toISOString() } : msg
-      ));
-    } catch (error: unknown) {
-      toast({
-        title: "Error marking message as read",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
-        variant: "destructive"
-      });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  };
+  }, [messages]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!messageInput.trim() || !conversation || !currentUser) return;
+
+    const messageContent = messageInput.trim();
+    setMessageInput(""); // Clear input immediately
 
     try {
       const { error } = await supabase
@@ -223,7 +283,7 @@ const Chat = () => {
         .insert({
           conversation_id: conversation.id,
           sender_id: currentUser.id,
-          content: messageInput.trim()
+          content: messageContent
         });
 
       if (error) throw error;
@@ -234,8 +294,9 @@ const Chat = () => {
         .update({ updated_at: new Date().toISOString() })
         .eq('id', conversation.id);
 
-      setMessageInput("");
     } catch (error: unknown) {
+      // Restore message input on error
+      setMessageInput(messageContent);
       toast({
         title: "Error sending message",
         description: error instanceof Error ? error.message : "Unknown error occurred",
@@ -252,7 +313,7 @@ const Chat = () => {
           <meta name="description" content="Private messaging between buyers and sellers on BU_Basket." />
         </Helmet>
         <Navbar />
-        <main className="mx-auto flex h-[calc(100vh-8rem)] max-w-4xl flex-col items-center justify-center px-4">
+        <main className="mx-auto flex h-[calc(100vh-8rem)] w-full max-w-6xl flex-col items-center justify-center px-4 lg:px-8">
           <Card>
             <CardHeader>
               <CardTitle>Authentication Required</CardTitle>
@@ -278,8 +339,33 @@ const Chat = () => {
           <title>Chat — BU_Basket</title>
         </Helmet>
         <Navbar />
-        <main className="mx-auto flex h-[calc(100vh-8rem)] max-w-4xl flex-col items-center justify-center px-4">
+        <main className="mx-auto flex h-[calc(100vh-8rem)] w-full max-w-6xl flex-col items-center justify-center px-4 lg:px-8">
           <p>Loading conversation...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Helmet>
+          <title>Chat — BU_Basket</title>
+        </Helmet>
+        <Navbar />
+        <main className="mx-auto flex h-[calc(100vh-8rem)] w-full max-w-6xl flex-col items-center justify-center px-4 lg:px-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Error loading conversation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-destructive mb-4">{error}</p>
+              <Button onClick={() => window.history.back()}>
+                ← Back
+              </Button>
+            </CardContent>
+          </Card>
         </main>
         <Footer />
       </div>
@@ -294,7 +380,7 @@ const Chat = () => {
         <link rel="canonical" href="/chat" />
       </Helmet>
       <Navbar />
-      <main className="mx-auto flex h-[calc(100vh-8rem)] max-w-4xl flex-col px-4 py-6">
+      <main className="mx-auto flex h-[calc(100vh-8rem)] w-full max-w-6xl flex-col px-4 py-6 lg:px-8">
         {conversation?.listing && (
           <div className="mb-4 rounded-xl border bg-card p-4 shadow-sm">
             <div className="flex items-center justify-between">
@@ -304,9 +390,9 @@ const Chat = () => {
                   ₹{conversation.listing.price} • Chat with {currentUser.id === conversation.seller_id ? 'buyer' : 'seller'}
                 </p>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => window.history.back()}
               >
                 ← Back
@@ -314,7 +400,7 @@ const Chat = () => {
             </div>
           </div>
         )}
-        <div className="flex-1 space-y-3 overflow-y-auto rounded-xl border bg-card p-4">
+        <div className="flex-1 space-y-3 overflow-y-auto rounded-xl border bg-card p-4 min-h-0">
           {messages.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
               <p>No messages yet. Start the conversation!</p>
@@ -322,29 +408,17 @@ const Chat = () => {
           ) : (
             messages.map((message) => {
               const isMe = message.sender_id === currentUser.id;
-              const isUnread = !isMe && !message.read_at;
+              const messageTime = new Date(message.created_at).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+
               return (
-                <div key={message.id} className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${isMe ? "ml-auto bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white" : "bg-secondary"}`}>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1">
-                      <p>{message.content}</p>
-                      <p className={`text-xs mt-1 ${isMe ? "text-white/70" : "text-muted-foreground"}`}>
-                        {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        {isUnread && <span className="ml-2 text-destructive">•</span>}
-                      </p>
-                    </div>
-                    {isUnread && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-6 w-6 p-0 hover:bg-muted/50"
-                        onClick={() => markAsRead(message.id)}
-                        title="Mark as read"
-                      >
-                        <Check className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </div>
+                <div key={message.id} className={`max-w-[80%] lg:max-w-[70%] rounded-2xl px-3 py-2 text-sm ${isMe ? "ml-auto bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white" : "bg-secondary"}`}>
+                  <p>{message.content}</p>
+                  <p className={`text-xs mt-1 ${isMe ? "text-white/70" : "text-muted-foreground"}`}>
+                    {messageTime}
+                  </p>
                 </div>
               );
             })
@@ -363,6 +437,14 @@ const Chat = () => {
       </main>
       <Footer />
     </div>
+  );
+};
+
+const Chat = () => {
+  return (
+    <ErrorBoundary>
+      <ChatContent />
+    </ErrorBoundary>
   );
 };
 

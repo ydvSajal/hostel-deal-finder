@@ -15,6 +15,7 @@ import Sell from "./pages/Sell";
 import Chat from "./pages/Chat";
 import Conversations from "./pages/Conversations";
 import TestChat from "./pages/TestChat";
+import ChatDebug from "./pages/ChatDebug";
 import Privacy from "./pages/Privacy";
 import EmailConfirmed from "./pages/EmailConfirmed";
 import Profile from "./pages/Profile";
@@ -40,6 +41,7 @@ const App: React.FC = () => {
               <Route path="/chat" element={<Chat />} />
               <Route path="/conversations" element={<Conversations />} />
               <Route path="/test-chat" element={<TestChat />} />
+              <Route path="/chat-debug" element={<ChatDebug />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/email-confirmed" element={<EmailConfirmed />} />
               <Route path="/profile" element={<Profile />} />

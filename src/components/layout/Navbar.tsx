@@ -22,34 +22,55 @@ const Navbar = () => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setUnreadCount(0);
+      return;
+    }
 
     const loadUnreadCount = async () => {
       try {
         // Get user's conversations
-        const { data: conversations } = await supabase
+        const { data: conversations, error: convError } = await supabase
           .from('conversations')
           .select('id')
           .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
 
-        if (!conversations) return;
+        if (convError) {
+          console.error('Error loading conversations:', convError);
+          return;
+        }
+
+        if (!conversations || conversations.length === 0) {
+          setUnreadCount(0);
+          return;
+        }
 
         // Count unread messages across all conversations
         let totalUnread = 0;
         for (const conv of conversations) {
-          const { count } = await supabase
-            .from('messages')
-            .select('*', { count: 'exact', head: true })
-            .eq('conversation_id', conv.id)
-            .neq('sender_id', user.id)
-            .is('read_at', null); // Only count unread messages
-          
-          totalUnread += count || 0;
+          try {
+            const { count, error: msgError } = await supabase
+              .from('messages')
+              .select('*', { count: 'exact', head: true })
+              .eq('conversation_id', conv.id)
+              .neq('sender_id', user.id)
+              .is('read_at', null);
+            
+            if (msgError) {
+              console.error('Error counting messages for conversation:', conv.id, msgError);
+              continue;
+            }
+            
+            totalUnread += count || 0;
+          } catch (error) {
+            console.error('Error processing conversation:', conv.id, error);
+          }
         }
         
         setUnreadCount(totalUnread);
       } catch (error) {
         console.error('Error loading unread count:', error);
+        setUnreadCount(0);
       }
     };
 
@@ -75,7 +96,11 @@ const Navbar = () => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      try {
+        supabase.removeChannel(channel);
+      } catch (error) {
+        console.error('Error removing channel:', error);
+      }
     };
   }, [user]);
 
