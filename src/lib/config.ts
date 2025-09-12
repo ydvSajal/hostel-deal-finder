@@ -21,8 +21,8 @@ export const config = {
   },
   
   // Email redirect URLs
-  emailRedirectUrl: import.meta.env.PROD
-    ? 'https://yourusername.github.io/hostel-deal-finder/email-confirmed'
+  emailRedirectUrl: (typeof window !== 'undefined' && window.location?.origin)
+    ? `${window.location.origin}/email-confirmed`
     : 'http://localhost:8080/email-confirmed',
     
   // App metadata
