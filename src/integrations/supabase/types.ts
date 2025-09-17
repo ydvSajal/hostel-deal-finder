@@ -242,34 +242,15 @@ export type Database = {
       }
     }
     Views: {
-      safe_profiles: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          created_at: string | null
-          display_name: string | null
-          id: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
-          display_name?: string | null
-          id?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
-          display_name?: string | null
-          id?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       are_conversation_participants: {
         Args: { user1_id: string; user2_id: string }
+        Returns: boolean
+      }
+      can_access_profile: {
+        Args: { profile_user_id: string }
         Returns: boolean
       }
       check_display_name_unique: {
@@ -291,6 +272,12 @@ export type Database = {
       delete_product_image_from_storage: {
         Args: { image_url: string }
         Returns: undefined
+      }
+      get_anonymized_seller_info: {
+        Args: { listing_id: string }
+        Returns: {
+          seller_hash: string
+        }[]
       }
       get_conversation_messages: {
         Args: {
@@ -340,6 +327,16 @@ export type Database = {
       }
       get_safe_profile: {
         Args: { profile_user_id: string; requesting_user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          created_at: string
+          display_name: string
+          id: string
+        }[]
+      }
+      get_safe_profiles: {
+        Args: Record<PropertyKey, never>
         Returns: {
           avatar_url: string
           bio: string
