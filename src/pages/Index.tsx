@@ -47,7 +47,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-atmospheric">
+    <div className="min-h-screen bg-atmospheric overflow-x-hidden">
       <Helmet>
         <title>BU_Basket — Campus Marketplace for BU Students | Buy, Sell & Borrow</title>
         <meta name="description" content="BU_Basket is the trusted student marketplace for BU campus. Buy, sell, and borrow textbooks, electronics, furniture, and daily essentials. Safe transactions with verified college email. Join 1000+ BU students today!" />
@@ -70,13 +70,14 @@ const Index = () => {
         {/* Mobile Optimization */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
         
         {/* Structured Data */}
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbData)}</script>
       </Helmet>
       <Navbar />
-      <main>
+      <main className="overflow-y-auto">
         <Hero />
         <Features />
         <HowItWorks />

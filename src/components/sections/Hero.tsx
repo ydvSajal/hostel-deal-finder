@@ -14,22 +14,22 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative overflow-hidden min-h-[100dvh] flex items-center justify-center">
+    <section className="relative overflow-hidden min-h-[100dvh] flex items-center justify-center touch-pan-y">
       {/* Ballpit Animation Background */}
-      <div className="absolute inset-0 z-0" style={{ willChange: 'transform' }}>
+      <div className="absolute inset-0 z-0 pointer-events-none" style={{ willChange: 'transform' }}>
         <Ballpit
-          count={isMobile ? 80 : 200}
-          gravity={0.7}
-          friction={0.8}
+          count={isMobile ? 30 : 150}
+          gravity={isMobile ? 0.5 : 0.7}
+          friction={isMobile ? 0.85 : 0.8}
           wallBounce={0.95}
           followCursor={false}
         />
       </div>
       
       {/* Content overlay */}
-      <div className="mx-auto max-w-6xl px-4 py-8 md:py-12 text-center relative z-10 w-full">
+      <div className="mx-auto max-w-6xl px-4 py-8 md:py-12 text-center relative z-10 w-full pointer-events-auto">
         <p className="mb-4 text-xs sm:text-sm md:text-base text-muted-foreground backdrop-blur-sm bg-background/30 inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">Apne hostel ka OLX — BU Campus</p>
-        <h1 className="mx-auto max-w-3xl text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold leading-tight tracking-tight">
+        <h1 className="mx-auto max-w-3xl text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-tight tracking-tight">
           <span className="text-gradient-primary drop-shadow-lg">BU_Basket</span> <span className="text-foreground drop-shadow-lg">Campus</span>
         </h1>
         <p className="mx-auto mt-4 sm:mt-6 max-w-2xl text-sm sm:text-base md:text-lg text-muted-foreground backdrop-blur-sm bg-background/40 inline-block px-4 sm:px-6 py-2 sm:py-3 rounded-2xl">
@@ -37,15 +37,15 @@ const Hero = () => {
         </p>
         <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-6 px-4 sm:px-0">
           <Link to="/sell" className="w-full sm:w-auto">
-            <Button variant="successGradient" size="xl" className="w-full sm:w-auto text-base sm:text-lg shadow-2xl hover:scale-105 transition-transform">Becho 🔥</Button>
+            <Button variant="successGradient" size="xl" className="w-full sm:w-auto text-sm sm:text-base md:text-lg shadow-2xl hover:scale-105 transition-transform">Becho 🔥</Button>
           </Link>
           <Link to="/listings" className="w-full sm:w-auto">
-            <Button variant="hero" size="xl" className="w-full sm:w-auto text-base sm:text-lg shadow-2xl hover:scale-105 transition-transform">Kharido 🛍️</Button>
+            <Button variant="hero" size="xl" className="w-full sm:w-auto text-sm sm:text-base md:text-lg shadow-2xl hover:scale-105 transition-transform">Kharido 🛍️</Button>
           </Link>
           <Button 
             variant="infoGradient" 
             size="xl"
-            className="w-full sm:w-auto text-base sm:text-lg shadow-2xl hover:scale-105 transition-transform"
+            className="w-full sm:w-auto text-sm sm:text-base md:text-lg shadow-2xl hover:scale-105 transition-transform"
             onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSdLYopQ2dCo_kBtnhMHmZq7cKgQeuBSWh5H368NKWNyoHiV4A/viewform?usp=header', '_blank', 'noopener,noreferrer')}
           >
             Borrow 📚
