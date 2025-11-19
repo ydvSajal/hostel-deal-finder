@@ -33,7 +33,7 @@ const Features = () => {
           {features.map(({ title, desc, Icon }) => (
             <div 
               key={title} 
-              className="group relative overflow-hidden rounded-2xl border border-border/40 bg-gradient-card p-8 shadow-elegant backdrop-blur-sm transition-smooth hover-lift hover:shadow-glow hover:border-brand/40"
+              className="group relative overflow-hidden rounded-2xl border-2 border-border/50 bg-card shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-sm transition-smooth hover-lift hover:shadow-[0_12px_40px_rgb(0,0,0,0.18)] hover:border-brand/50"
             >
               <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-primary opacity-5 blur-2xl transition-smooth group-hover:opacity-10" />
               <div className="relative">
