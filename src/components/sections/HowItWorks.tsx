@@ -19,7 +19,7 @@ const HowItWorks = () => {
               className="group relative"
               style={{ animationDelay: `${idx * 100}ms` }}
             >
-              <div className="relative h-full rounded-2xl border-2 border-border/50 bg-card p-8 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-sm transition-smooth hover-lift hover:shadow-[0_12px_40px_rgb(0,0,0,0.18)] hover:border-brand-2/50">
+              <div className="relative h-full rounded-2xl border border-border/40 bg-gradient-card p-8 shadow-elegant backdrop-blur-sm transition-smooth hover-lift hover:shadow-glow hover:border-brand-2/40">
                 <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-success opacity-5 blur-2xl transition-smooth group-hover:opacity-10" />
                 <div className="relative">
                   <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-success text-lg font-bold text-primary-foreground shadow-glow">
