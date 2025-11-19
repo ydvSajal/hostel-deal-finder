@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -21,9 +21,13 @@ const Sell = () => {
     description: ''
   });
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editListingId = searchParams.get('edit');
+  const isEditMode = !!editListingId;
 
   useEffect(() => {
     const getUser = async () => {
@@ -33,6 +37,43 @@ const Sell = () => {
     };
     getUser();
   }, []);
+
+  // Load existing listing data when in edit mode
+  useEffect(() => {
+    const loadListingData = async () => {
+      if (!editListingId || !currentUser) return;
+
+      const { data: listing, error } = await supabase
+        .from('listings')
+        .select('*')
+        .eq('id', editListingId)
+        .eq('seller_id', currentUser.id)
+        .single();
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Could not load listing data.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (listing) {
+        setFormData({
+          title: listing.title || '',
+          category: listing.category || '',
+          price: listing.price?.toString() || '',
+          description: listing.description || ''
+        });
+        setExistingImageUrl(listing.image_url);
+      }
+    };
+
+    if (currentUser && editListingId) {
+      loadListingData();
+    }
+  }, [editListingId, currentUser, toast]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -85,18 +126,48 @@ const Sell = () => {
 
     setUploading(true);
     try {
-      // First create the listing
-      const { data: listingData, error: listingError } = await supabase
-        .from('listings')
-        .insert({
-          title: formData.title,
-          category: formData.category,
-          price: parseFloat(formData.price),
-          description: formData.description,
-          seller_id: currentUser.id
-        })
-        .select()
-        .single();
+      if (isEditMode && editListingId) {
+        // Update existing listing
+        let imageUrl = existingImageUrl;
+        
+        // Upload new images if selected
+        if (selectedImages.length > 0) {
+          const imageUrls = await uploadImages(editListingId);
+          imageUrl = imageUrls[0] || existingImageUrl;
+        }
+
+        const { error: updateError } = await supabase
+          .from('listings')
+          .update({
+            title: formData.title,
+            category: formData.category,
+            price: parseFloat(formData.price),
+            description: formData.description,
+            image_url: imageUrl
+          })
+          .eq('id', editListingId)
+          .eq('seller_id', currentUser.id);
+
+        if (updateError) throw updateError;
+
+        toast({
+          title: "Success!",
+          description: "Your listing has been updated successfully.",
+        });
+        navigate('/my-listings');
+      } else {
+        // Create new listing
+        const { data: listingData, error: listingError } = await supabase
+          .from('listings')
+          .insert({
+            title: formData.title,
+            category: formData.category,
+            price: parseFloat(formData.price),
+            description: formData.description,
+            seller_id: currentUser.id
+          })
+          .select()
+          .single();
 
       if (listingError) throw listingError;
 
@@ -122,9 +193,10 @@ const Sell = () => {
       });
 
       navigate('/listings');
+      }
     } catch (error: unknown) {
       toast({
-        title: "Error creating listing",
+        title: isEditMode ? "Error updating listing" : "Error creating listing",
         description: error instanceof Error ? error.message : "Unknown error occurred",
         variant: "destructive"
       });
@@ -188,7 +260,7 @@ const Sell = () => {
       </div>
 
       <Helmet>
-        <title>Sell Your Item — BU_Basket | List Books, Electronics & More</title>
+        <title>{isEditMode ? 'Edit Your Listing' : 'Sell Your Item'} — BU_Basket | List Books, Electronics & More</title>
         <meta name="description" content="Sell your items on BU_Basket marketplace. List textbooks, electronics, furniture, and hostel essentials. Free listing, verified students only, fast & safe transactions." />
         <meta name="keywords" content="sell items BU, sell textbooks, sell electronics, list items campus, student marketplace, sell furniture BU, hostel items sale" />
         <link rel="canonical" href="https://bu-basket.com/sell" />
@@ -206,10 +278,10 @@ const Sell = () => {
         <div className="mb-10 text-center">
           <div className="text-6xl sm:text-7xl mb-4 animate-bounce">🏪</div>
           <h1 className="mb-3 text-4xl sm:text-5xl font-extrabold">
-            Sell Your <span className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent">Item</span>
+            {isEditMode ? 'Edit Your' : 'Sell Your'} <span className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent">Item</span>
           </h1>
           <p className="text-lg text-muted-foreground">
-            List your item and connect with buyers on campus
+            {isEditMode ? 'Update your listing details' : 'List your item and connect with buyers on campus'}
           </p>
         </div>
 
@@ -316,11 +388,11 @@ const Sell = () => {
               >
                 {uploading ? (
                   <span className="flex items-center gap-2">
-                    <span className="animate-spin">⏳</span> Publishing...
+                    <span className="animate-spin">⏳</span> {isEditMode ? 'Updating...' : 'Publishing...'}
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    🚀 Publish Listing
+                    {isEditMode ? '💾 Update Listing' : '🚀 Publish Listing'}
                   </span>
                 )}
               </Button>
