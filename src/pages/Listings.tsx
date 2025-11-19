@@ -119,7 +119,7 @@ const Listings = () => {
                     <div className="mt-3">
                       {currentUser ? (
                         currentUserHash === listing.seller_hash ? (
-                          <Button size="sm" variant="outline" className="w-full" disabled>
+                          <Button size="sm" variant="outline" className="w-full border-2 border-border/40 bg-muted/30 hover:bg-muted/50 hover:border-border/60" disabled>
                             📝 Your listing
                           </Button>
                         ) : (
@@ -130,7 +130,7 @@ const Listings = () => {
                           </Button>
                         )
                       ) : (
-                        <Button asChild size="sm" variant="outline" className="w-full">
+                        <Button asChild size="sm" variant="outline" className="w-full border-2 border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 text-foreground">
                           <Link to="/login">
                             Login to chat
                           </Link>
