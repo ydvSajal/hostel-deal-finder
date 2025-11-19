@@ -122,42 +122,42 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-2">
-          <ShoppingBasket className="h-5 w-5 text-[hsl(var(--brand))]" aria-hidden />
-          <span className="font-semibold tracking-tight text-gradient-primary">BU_Basket</span>
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-sm">
+      <nav className="mx-auto flex h-16 md:h-18 max-w-7xl items-center justify-between px-4 md:px-6">
+        <Link to="/" className="flex items-center gap-2 md:gap-3">
+          <ShoppingBasket className="h-6 w-6 md:h-7 md:w-7 text-[hsl(var(--brand))]" aria-hidden />
+          <span className="text-lg md:text-xl font-bold tracking-tight text-gradient-primary">BU_Basket</span>
         </Link>
 
-        <div className="hidden items-center gap-4 md:flex">
-          <NavLink to="/listings" className={({ isActive }) => isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}>Browse</NavLink>
+        <div className="hidden items-center gap-6 md:flex">
+          <NavLink to="/listings" className={({ isActive }) => `text-base font-medium ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>Browse</NavLink>
           {user && (
             <>
-              <NavLink to="/conversations" className={({ isActive }) => `relative flex items-center gap-1 ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                <MessageCircle className="h-4 w-4" />
+              <NavLink to="/conversations" className={({ isActive }) => `relative flex items-center gap-1.5 text-base font-medium ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                <MessageCircle className="h-5 w-5" />
                 Messages
                 {unreadCount > 0 && (
-                  <Badge variant="destructive" className="text-xs px-1 py-0 min-w-[1.25rem] h-5">
+                  <Badge variant="destructive" className="text-xs px-1.5 py-0.5 min-w-[1.25rem] h-5">
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </Badge>
                 )}
               </NavLink>
-              <NavLink to="/my-listings" className={({ isActive }) => `flex items-center gap-1 ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                <Store className="h-4 w-4" />
+              <NavLink to="/my-listings" className={({ isActive }) => `flex items-center gap-1.5 text-base font-medium ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                <Store className="h-5 w-5" />
                 My Listings
               </NavLink>
             </>
           )}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 md:gap-4">
           {user ? (
             <>
-              <Link to="/sell"><Button variant="successGradient" size="sm" className="hidden md:inline-flex">Sell</Button></Link>
+              <Link to="/sell"><Button variant="successGradient" size="default" className="hidden md:inline-flex font-medium">Sell</Button></Link>
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Button variant="ghost" className="relative h-9 w-9 md:h-10 md:w-10 rounded-full">
                     <ProfileAvatar size="sm" />
                   </Button>
                 </DropdownMenuTrigger>
