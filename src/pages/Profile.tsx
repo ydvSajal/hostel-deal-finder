@@ -81,13 +81,18 @@ const Profile = () => {
       return;
     }
 
-    if (profileData.mobile_number && !/^\+?[6-9]\d{9}$/.test(profileData.mobile_number)) {
-      toast({
-        title: "Validation Error", 
-        description: "Please enter a valid mobile number",
-        variant: "destructive",
-      });
-      return;
+    // Only validate if mobile number is provided and not empty
+    if (profileData.mobile_number && profileData.mobile_number.trim() !== '') {
+      // Allow Indian mobile numbers with or without +91, spaces, or hyphens
+      const cleanedNumber = profileData.mobile_number.replace(/[\s\-]/g, '');
+      if (!/^(\+91)?[6-9]\d{9}$/.test(cleanedNumber)) {
+        toast({
+          title: "Validation Error", 
+          description: "Please enter a valid Indian mobile number (10 digits starting with 6-9)",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     if (profileData.bio && profileData.bio.length > 500) {
