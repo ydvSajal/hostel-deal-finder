@@ -6,8 +6,8 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -135,13 +135,18 @@ const Sell = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-atmospheric">
         <Helmet>
           <title>Sell an Item — BU_Basket</title>
         </Helmet>
         <Navbar />
-        <main className="mx-auto max-w-2xl px-4 py-10">
-          <p>Loading...</p>
+        <main className="mx-auto max-w-2xl px-4 py-20">
+          <div className="relative overflow-hidden rounded-3xl border border-brand/20 bg-gradient-card p-12 shadow-elegant backdrop-blur-xl">
+            <div className="text-center">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-brand border-t-transparent" />
+              <p className="mt-4 text-muted-foreground">Loading...</p>
+            </div>
+          </div>
         </main>
         <Footer />
       </div>
@@ -150,23 +155,23 @@ const Sell = () => {
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-atmospheric">
         <Helmet>
           <title>Sell an Item — BU_Basket</title>
           <meta name="description" content="Create a listing to sell your items on BU_Basket marketplace." />
           <link rel="canonical" href="/sell" />
         </Helmet>
         <Navbar />
-        <main className="mx-auto max-w-2xl px-4 py-10">
-          <Card>
-            <CardHeader>
-              <CardTitle>Authentication Required</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-4">You need to be logged in to create a listing.</p>
-              <Button onClick={() => navigate('/login')}>Go to Login</Button>
-            </CardContent>
-          </Card>
+        <main className="mx-auto max-w-2xl px-4 py-20">
+          <div className="relative overflow-hidden rounded-3xl border border-destructive/20 bg-gradient-card p-12 shadow-elegant backdrop-blur-xl text-center">
+            <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-gradient-primary opacity-5 blur-3xl" />
+            <div className="relative">
+              <p className="mb-6 text-lg text-muted-foreground">You need to be logged in to create a listing.</p>
+              <Button variant="hero" size="lg" className="rounded-full shadow-glow" onClick={() => navigate('/login')}>
+                Go to Login
+              </Button>
+            </div>
+          </div>
         </main>
         <Footer />
       </div>
@@ -174,83 +179,101 @@ const Sell = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-atmospheric">
       <Helmet>
         <title>Sell an Item — BU_Basket</title>
         <meta name="description" content="Create a listing to sell your items on BU_Basket marketplace." />
         <link rel="canonical" href="/sell" />
       </Helmet>
       <Navbar />
-      <main className="mx-auto max-w-2xl px-4 py-10">
-        <h1 className="mb-6 text-3xl font-bold">Sell an Item</h1>
-        <form onSubmit={onSubmit} className="space-y-5">
-          <div>
-            <label className="mb-1 block text-sm font-medium">Title</label>
-            <Input 
-              name="title"
-              placeholder="e.g., DSA Book" 
-              value={formData.title}
-              onChange={handleInputChange}
-              required 
-            />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-medium">Category</label>
-              <Input 
-                name="category"
-                placeholder="Books / Essentials" 
-                value={formData.category}
-                onChange={handleInputChange}
-                required 
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium">Price (₹)</label>
-              <Input 
-                name="price"
-                type="number" 
-                min={0} 
-                step={1} 
-                value={formData.price}
-                onChange={handleInputChange}
-                required 
-              />
-            </div>
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium">Description</label>
-            <Textarea 
-              name="description"
-              placeholder="Add condition, pickup spot, etc." 
-              rows={4}
-              value={formData.description}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium">Images (Max 3)</label>
-            <input 
-              type="file" 
-              accept="image/*" 
-              multiple 
-              onChange={handleImageChange}
-              className="block w-full rounded-md border bg-background p-2" 
-            />
-            {selectedImages.length > 0 && (
-              <div className="mt-2 flex gap-2 flex-wrap">
-                {selectedImages.map((file, index) => (
-                  <div key={index} className="text-xs text-muted-foreground">
-                    📷 {file.name}
-                  </div>
-                ))}
+      <main className="mx-auto max-w-2xl px-4 py-20">
+        <div className="mb-10 text-center">
+          <h1 className="mb-3 text-4xl font-bold">
+            Sell Your <span className="text-gradient-success">Item</span>
+          </h1>
+          <p className="text-lg text-muted-foreground">
+            List your item and connect with buyers on campus
+          </p>
+        </div>
+        <div className="relative overflow-hidden rounded-3xl border border-brand/20 bg-gradient-card shadow-elegant backdrop-blur-xl">
+          <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-gradient-success opacity-5 blur-3xl" />
+          <div className="relative p-8 sm:p-10">
+            <h2 className="mb-6 text-2xl font-bold">Item Details</h2>
+            <form onSubmit={onSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-sm font-medium">Title *</Label>
+                <Input 
+                  id="title"
+                  name="title"
+                  placeholder="e.g., DSA Book" 
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  required 
+                  className="h-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20"
+                />
               </div>
-            )}
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="category" className="text-sm font-medium">Category *</Label>
+                  <Input 
+                    id="category"
+                    name="category"
+                    placeholder="Books / Essentials" 
+                    value={formData.category}
+                    onChange={handleInputChange}
+                    required 
+                    className="h-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="price" className="text-sm font-medium">Price (₹) *</Label>
+                  <Input 
+                    id="price"
+                    name="price"
+                    type="number" 
+                    min={0} 
+                    step={1} 
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    required 
+                    className="h-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+                <Textarea 
+                  id="description"
+                  name="description"
+                  placeholder="Add condition, pickup spot, etc." 
+                  rows={4}
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20 resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="images" className="text-sm font-medium">Images (Max 3)</Label>
+                <Input 
+                  id="images"
+                  type="file" 
+                  accept="image/*" 
+                  multiple 
+                  onChange={handleImageChange}
+                  className="h-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth file:mr-4 file:rounded-lg file:border-0 file:bg-brand file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-foreground hover:file:bg-brand/90"
+                />
+                {selectedImages.length > 0 && (
+                  <p className="mt-2 text-sm text-success">
+                    ✓ {selectedImages.length} image(s) selected
+                  </p>
+                )}
+              </div>
+              <Button type="submit" variant="successGradient" size="lg" className="w-full rounded-xl shadow-glow" disabled={uploading}>
+                {uploading ? "Publishing..." : "Publish Listing"}
+              </Button>
+            </form>
           </div>
-          <Button type="submit" variant="hero" className="rounded-full" disabled={uploading}>
-            {uploading ? "Publishing..." : "Publish Listing"}
-          </Button>
-        </form>
+        </div>
       </main>
       <Footer />
     </div>

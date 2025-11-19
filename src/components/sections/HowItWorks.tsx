@@ -6,18 +6,35 @@ const steps = [
 
 const HowItWorks = () => {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-14">
-      <h2 className="mb-8 text-center text-3xl font-bold tracking-tight">Kaise Kaam Karta Hai? 🤔</h2>
-      <div className="grid gap-6 md:grid-cols-3">
-        {steps.map((s) => (
-          <article key={s.id} className="rounded-2xl border bg-card p-6 shadow-sm">
-            <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-primary-foreground text-sm font-bold">
-              {s.id}
-            </div>
-            <h3 className="mb-1 font-semibold">{s.title}</h3>
-            <p className="text-sm text-muted-foreground">{s.desc}</p>
-          </article>
-        ))}
+    <section className="relative mx-auto max-w-6xl px-4 py-20 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-radial from-brand-2/5 via-transparent to-transparent blur-3xl" />
+      <div className="relative">
+        <h2 className="mb-12 text-center text-4xl font-bold tracking-tight">
+          Kaise Kaam Karta Hai? 🤔
+        </h2>
+        <div className="grid gap-8 md:grid-cols-3">
+          {steps.map((s, idx) => (
+            <article 
+              key={s.id} 
+              className="group relative"
+              style={{ animationDelay: `${idx * 100}ms` }}
+            >
+              <div className="relative h-full rounded-2xl border border-border/40 bg-gradient-card p-8 shadow-elegant backdrop-blur-sm transition-smooth hover-lift hover:shadow-glow hover:border-brand-2/40">
+                <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-success opacity-5 blur-2xl transition-smooth group-hover:opacity-10" />
+                <div className="relative">
+                  <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-success text-lg font-bold text-primary-foreground shadow-glow">
+                    {s.id}
+                  </div>
+                  <h3 className="mb-2 text-xl font-bold">{s.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{s.desc}</p>
+                </div>
+              </div>
+              {idx < steps.length - 1 && (
+                <div className="hidden md:block absolute -right-4 top-1/2 z-10 h-0.5 w-8 bg-gradient-to-r from-brand-2/50 to-transparent" />
+              )}
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -184,78 +184,88 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-atmospheric">
       <Helmet>
         <title>Login — BU_Basket</title>
         <meta name="description" content="Login or sign up using your @bennett.edu.in email to access BU_Basket." />
         <link rel="canonical" href="/login" />
       </Helmet>
       <Navbar />
-      <main className="mx-auto max-w-xl px-4 py-16">
-        <h1 className="mb-2 text-3xl font-bold">
-          {!otpSent ? "Login with Email OTP" : "Enter Verification Code"}
-        </h1>
-        <p className="mb-6 text-muted-foreground">
-          {!otpSent 
-            ? `Enter your @${config.collegeEmailDomain} email to receive a verification code.`
-            : `We've sent a 6-digit code to ${email}. Check your email for the code (look for the numbers, not the magic link).`
-          }
-        </p>
-        <div className="rounded-2xl border bg-card p-8 shadow-sm">
-          {!otpSent ? (
-            <form onSubmit={(e) => { e.preventDefault(); sendOTP(); }} className="space-y-4">
-              <div>
-                <Label htmlFor="email">College email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  inputMode="email"
-                  placeholder={`you@${config.collegeEmailDomain}`}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  pattern={`.*@${config.collegeEmailDomain.replace('.', '\\.')}`}
-                />
-              </div>
-              <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
-                {loading ? "Sending code..." : "Send OTP"}
-              </Button>
-            </form>
-          ) : (
-            <form onSubmit={verifyOTP} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="otp">Enter 6-digit code</Label>
-                <div className="flex justify-center">
-                  <InputOTP
-                    value={otp}
-                    onChange={setOtp}
-                    maxLength={6}
-                  >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
+      <main className="mx-auto max-w-xl px-4 py-20">
+        <div className="relative overflow-hidden rounded-3xl border border-brand/20 bg-gradient-card p-10 shadow-elegant backdrop-blur-xl">
+          <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-gradient-primary opacity-10 blur-3xl" />
+          <div className="relative">
+            <div className="mb-8 text-center">
+              <h1 className="mb-3 text-3xl font-bold">
+                {!otpSent ? "Welcome to " : "Verify Your "}
+                <span className="text-gradient-primary">{!otpSent ? "BU_Basket" : "Email"}</span>
+              </h1>
+              <p className="text-muted-foreground">
+                {!otpSent 
+                  ? `Sign in with your @${config.collegeEmailDomain} email`
+                  : `Enter the code sent to ${email}`
+                }
+              </p>
+            </div>
+            {!otpSent ? (
+              <form onSubmit={(e) => { e.preventDefault(); sendOTP(); }} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">College Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    inputMode="email"
+                    placeholder={`you@${config.collegeEmailDomain}`}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    pattern={`.*@${config.collegeEmailDomain.replace('.', '\\.')}`}
+                    className="h-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20"
+                  />
                 </div>
-              </div>
-              <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading || otp.length !== 6}>
-                {loading ? "Verifying..." : "Login"}
-              </Button>
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" onClick={handleBack} className="flex-1">
-                  Back
+                <Button type="submit" variant="hero" size="lg" className="w-full rounded-xl shadow-glow" disabled={loading}>
+                  {loading ? "Sending code..." : "Send OTP"}
                 </Button>
-                <Button type="button" variant="outline" onClick={sendOTP} disabled={loading || !canResend} className="flex-1">
-                  {canResend ? "Resend OTP" : `Resend in ${countdown}s`}
+              </form>
+            ) : (
+              <form onSubmit={verifyOTP} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="otp" className="text-sm font-medium text-center block">Enter 6-digit code</Label>
+                  <div className="flex justify-center">
+                    <InputOTP
+                      value={otp}
+                      onChange={setOtp}
+                      maxLength={6}
+                    >
+                      <InputOTPGroup className="gap-2">
+                        <InputOTPSlot index={0} className="h-14 w-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand" />
+                        <InputOTPSlot index={1} className="h-14 w-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand" />
+                        <InputOTPSlot index={2} className="h-14 w-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand" />
+                        <InputOTPSlot index={3} className="h-14 w-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand" />
+                        <InputOTPSlot index={4} className="h-14 w-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand" />
+                        <InputOTPSlot index={5} className="h-14 w-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand" />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                </div>
+                <Button type="submit" variant="hero" size="lg" className="w-full rounded-xl shadow-glow" disabled={loading || otp.length !== 6}>
+                  {loading ? "Verifying..." : "Login"}
                 </Button>
-              </div>
-            </form>
-          )}
+                <div className="flex gap-3">
+                  <Button type="button" variant="outline" size="lg" onClick={handleBack} className="flex-1 rounded-xl border-border/50 hover:bg-background/50">
+                    Back
+                  </Button>
+                  <Button type="button" variant="outline" size="lg" onClick={sendOTP} disabled={loading || !canResend} className="flex-1 rounded-xl border-border/50 hover:bg-background/50">
+                    {canResend ? "Resend" : `${countdown}s`}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </div>
         </div>
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          By signing in, you agree to our terms of service
+        </p>
       </main>
       <Footer />
     </div>
