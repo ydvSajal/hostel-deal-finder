@@ -209,7 +209,7 @@ const Sell = () => {
                   value={formData.title}
                   onChange={handleInputChange}
                   required 
-                  className="h-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20"
+                  className="h-12 rounded-xl border-2 border-border/60 bg-background/80 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20 hover:border-border/80"
                 />
               </div>
               <div className="grid gap-6 sm:grid-cols-2">
@@ -222,7 +222,7 @@ const Sell = () => {
                     value={formData.category}
                     onChange={handleInputChange}
                     required 
-                    className="h-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20"
+                    className="h-12 rounded-xl border-2 border-border/60 bg-background/80 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20 hover:border-border/80"
                   />
                 </div>
                 <div className="space-y-2">
@@ -236,7 +236,7 @@ const Sell = () => {
                     value={formData.price}
                     onChange={handleInputChange}
                     required 
-                    className="h-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20"
+                    className="h-12 rounded-xl border-2 border-border/60 bg-background/80 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20 hover:border-border/80"
                   />
                 </div>
               </div>
@@ -249,7 +249,7 @@ const Sell = () => {
                   rows={4}
                   value={formData.description}
                   onChange={handleInputChange}
-                  className="rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20 resize-none"
+                  className="rounded-xl border-2 border-border/60 bg-background/80 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20 resize-none hover:border-border/80"
                 />
               </div>
               <div className="space-y-2">
@@ -260,7 +260,7 @@ const Sell = () => {
                   accept="image/*" 
                   multiple 
                   onChange={handleImageChange}
-                  className="h-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth file:mr-4 file:rounded-lg file:border-0 file:bg-brand file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-foreground hover:file:bg-brand/90"
+                  className="h-12 rounded-xl border-2 border-border/60 bg-background/80 backdrop-blur-sm transition-smooth file:mr-4 file:rounded-lg file:border-0 file:bg-brand file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-foreground hover:file:bg-brand/90 hover:border-border/80"
                 />
                 {selectedImages.length > 0 && (
                   <p className="mt-2 text-sm text-success">
