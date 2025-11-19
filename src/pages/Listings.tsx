@@ -141,12 +141,12 @@ const Listings = () => {
                     <div className="absolute inset-0 bg-gradient-to-br from-brand/5 to-brand-2/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     
                     {/* Image with overlay gradient */}
-                    <div className="relative overflow-hidden rounded-t-3xl">
+                    <div className="relative overflow-hidden rounded-t-3xl aspect-[4/3] bg-muted/20 flex items-center justify-center">
                       <img
                         src={listing.image_url || "/placeholder.svg"}
                         loading="lazy"
                         alt={`${listing.title} product image`}
-                        className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="w-full h-full object-contain p-3 transition-transform duration-500 group-hover:scale-105"
                       />
                       {/* Category badge */}
                       <div className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold border border-border/50">
