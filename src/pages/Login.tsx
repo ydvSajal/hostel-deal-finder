@@ -184,23 +184,48 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-atmospheric">
+    <div className="min-h-screen bg-atmospheric relative overflow-hidden">
+      {/* Animated background blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 h-96 w-96 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 h-96 w-96 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-brand/10 to-brand-2/10 blur-3xl animate-pulse" style={{ animationDelay: '3s' }} />
+      </div>
+      
       <Helmet>
-        <title>Login — BU_Basket</title>
-        <meta name="description" content="Login or sign up using your @bennett.edu.in email to access BU_Basket." />
-        <link rel="canonical" href="/login" />
+        <title>Login — BU_Basket | Student Marketplace Access</title>
+        <meta name="description" content="Login to BU_Basket with your @bennett.edu.in email. Secure OTP verification for verified students only. Access campus marketplace safely." />
+        <meta name="keywords" content="BU login, student login, college email verification, OTP login, secure marketplace" />
+        <link rel="canonical" href="https://bu-basket.com/login" />
+        <meta property="og:title" content="Login to BU_Basket" />
+        <meta property="og:description" content="Access BU's trusted student marketplace with your college email." />
       </Helmet>
       <Navbar />
-      <main className="mx-auto max-w-xl px-4 py-20">
-        <div className="relative overflow-hidden rounded-3xl border border-brand/20 bg-gradient-card p-10 shadow-elegant backdrop-blur-xl">
-          <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-gradient-primary opacity-10 blur-3xl" />
-          <div className="relative">
-            <div className="mb-8 text-center">
-              <h1 className="mb-3 text-3xl font-bold">
+      <main className="relative mx-auto max-w-xl px-4 py-16 sm:py-20">
+        {/* Decorative sparkles */}
+        <div className="absolute top-10 left-10 text-3xl animate-bounce">✨</div>
+        <div className="absolute top-20 right-10 text-3xl animate-bounce" style={{ animationDelay: '0.5s' }}>⭐</div>
+        
+        <div className="relative overflow-hidden rounded-3xl border-2 border-brand/30 bg-gradient-to-br from-card/95 via-card/90 to-card/95 p-8 sm:p-12 shadow-2xl backdrop-blur-xl">
+          {/* Floating gradient orbs */}
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 opacity-20 blur-3xl animate-pulse" />
+          <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 opacity-20 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+          
+          {/* Sparkle decorations */}
+          <div className="absolute top-6 right-6 text-2xl animate-bounce">✨</div>
+          <div className="absolute bottom-6 left-6 text-2xl animate-bounce" style={{ animationDelay: '1s' }}>💫</div>
+          
+          <div className="relative z-10">
+            {/* Large emoji header */}
+            <div className="mb-6 text-center">
+              <div className="text-6xl sm:text-7xl mb-4 animate-bounce">
+                {!otpSent ? "🎓" : "📧"}
+              </div>
+              <h1 className="mb-3 text-3xl sm:text-4xl font-extrabold">
                 {!otpSent ? "Welcome to " : "Verify Your "}
                 <span className="text-gradient-primary">{!otpSent ? "BU_Basket" : "Email"}</span>
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-lg text-muted-foreground">
                 {!otpSent 
                   ? `Sign in with your @${config.collegeEmailDomain} email`
                   : `Enter the code sent to ${email}`
@@ -209,61 +234,127 @@ const Login = () => {
             </div>
             {!otpSent ? (
               <form onSubmit={(e) => { e.preventDefault(); sendOTP(); }} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">College Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    inputMode="email"
-                    placeholder={`you@${config.collegeEmailDomain}`}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    pattern={`.*@${config.collegeEmailDomain.replace('.', '\\.')}`}
-                    className="h-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20"
-                  />
+                <div className="space-y-3">
+                  <Label htmlFor="email" className="text-sm font-semibold flex items-center gap-2">
+                    📧 College Email
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="email"
+                      type="email"
+                      inputMode="email"
+                      placeholder={`you@${config.collegeEmailDomain}`}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      pattern={`.*@${config.collegeEmailDomain.replace('.', '\\.')}`}
+                      className="h-14 rounded-2xl border-2 border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-300 focus:border-brand focus:ring-4 focus:ring-brand/20 text-base pl-4 pr-4 hover:border-brand/50"
+                    />
+                  </div>
                 </div>
-                <Button type="submit" variant="hero" size="lg" className="w-full rounded-xl shadow-glow" disabled={loading}>
-                  {loading ? "Sending code..." : "Send OTP"}
+                <Button 
+                  type="submit" 
+                  variant="hero" 
+                  size="lg" 
+                  className="w-full h-14 rounded-2xl shadow-2xl text-lg font-bold hover:scale-105 hover:shadow-glow transition-all duration-300" 
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="animate-spin">⏳</span> Sending code...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      🚀 Send OTP
+                    </span>
+                  )}
                 </Button>
+                
+                {/* Trust indicators */}
+                <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground pt-4">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-lg">🔒</span>
+                    <span>Secure</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-lg">⚡</span>
+                    <span>Fast</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-lg">✓</span>
+                    <span>Verified</span>
+                  </div>
+                </div>
               </form>
             ) : (
               <form onSubmit={verifyOTP} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="otp" className="text-sm font-medium text-center block">Enter 6-digit code</Label>
+                <div className="space-y-4">
+                  <Label htmlFor="otp" className="text-base font-semibold text-center flex items-center justify-center gap-2">
+                    🔐 Enter 6-digit code
+                  </Label>
                   <div className="flex justify-center">
                     <InputOTP
                       value={otp}
                       onChange={setOtp}
                       maxLength={6}
                     >
-                      <InputOTPGroup className="gap-2">
-                        <InputOTPSlot index={0} className="h-14 w-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand" />
-                        <InputOTPSlot index={1} className="h-14 w-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand" />
-                        <InputOTPSlot index={2} className="h-14 w-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand" />
-                        <InputOTPSlot index={3} className="h-14 w-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand" />
-                        <InputOTPSlot index={4} className="h-14 w-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand" />
-                        <InputOTPSlot index={5} className="h-14 w-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm transition-smooth focus:border-brand" />
+                      <InputOTPGroup className="gap-2 sm:gap-3">
+                        <InputOTPSlot index={0} className="h-16 w-12 sm:w-14 rounded-2xl border-2 !border-brand/40 bg-background/80 backdrop-blur-sm transition-all duration-300 focus:!border-brand focus:ring-4 focus:ring-brand/20 text-xl font-bold hover:!border-brand/60 shadow-md" />
+                        <InputOTPSlot index={1} className="h-16 w-12 sm:w-14 rounded-2xl border-2 !border-brand/40 bg-background/80 backdrop-blur-sm transition-all duration-300 focus:!border-brand focus:ring-4 focus:ring-brand/20 text-xl font-bold hover:!border-brand/60 shadow-md" />
+                        <InputOTPSlot index={2} className="h-16 w-12 sm:w-14 rounded-2xl border-2 !border-brand/40 bg-background/80 backdrop-blur-sm transition-all duration-300 focus:!border-brand focus:ring-4 focus:ring-brand/20 text-xl font-bold hover:!border-brand/60 shadow-md" />
+                        <InputOTPSlot index={3} className="h-16 w-12 sm:w-14 rounded-2xl border-2 !border-brand/40 bg-background/80 backdrop-blur-sm transition-all duration-300 focus:!border-brand focus:ring-4 focus:ring-brand/20 text-xl font-bold hover:!border-brand/60 shadow-md" />
+                        <InputOTPSlot index={4} className="h-16 w-12 sm:w-14 rounded-2xl border-2 !border-brand/40 bg-background/80 backdrop-blur-sm transition-all duration-300 focus:!border-brand focus:ring-4 focus:ring-brand/20 text-xl font-bold hover:!border-brand/60 shadow-md" />
+                        <InputOTPSlot index={5} className="h-16 w-12 sm:w-14 rounded-2xl border-2 !border-brand/40 bg-background/80 backdrop-blur-sm transition-all duration-300 focus:!border-brand focus:ring-4 focus:ring-brand/20 text-xl font-bold hover:!border-brand/60 shadow-md" />
                       </InputOTPGroup>
                     </InputOTP>
                   </div>
                 </div>
-                <Button type="submit" variant="hero" size="lg" className="w-full rounded-xl shadow-glow" disabled={loading || otp.length !== 6}>
-                  {loading ? "Verifying..." : "Login"}
+                <Button 
+                  type="submit" 
+                  variant="hero" 
+                  size="lg" 
+                  className="w-full h-14 rounded-2xl shadow-2xl text-lg font-bold hover:scale-105 hover:shadow-glow transition-all duration-300" 
+                  disabled={loading || otp.length !== 6}
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="animate-spin">⏳</span> Verifying...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      ✅ Login
+                    </span>
+                  )}
                 </Button>
                 <div className="flex gap-3">
-                  <Button type="button" variant="outline" size="lg" onClick={handleBack} className="flex-1 rounded-xl border-border/50 hover:bg-background/50">
-                    Back
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="lg" 
+                    onClick={handleBack} 
+                    className="flex-1 h-12 rounded-2xl border-2 border-border/50 hover:bg-background/80 hover:border-brand/50 transition-all duration-300"
+                  >
+                    ← Back
                   </Button>
-                  <Button type="button" variant="outline" size="lg" onClick={sendOTP} disabled={loading || !canResend} className="flex-1 rounded-xl border-border/50 hover:bg-background/50">
-                    {canResend ? "Resend" : `${countdown}s`}
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="lg" 
+                    onClick={sendOTP} 
+                    disabled={loading || !canResend} 
+                    className="flex-1 h-12 rounded-2xl border-2 border-border/50 hover:bg-background/80 hover:border-brand/50 transition-all duration-300 disabled:opacity-50"
+                  >
+                    {canResend ? "🔄 Resend" : `⏱️ ${countdown}s`}
                   </Button>
                 </div>
               </form>
             )}
           </div>
         </div>
-        <p className="mt-6 text-center text-sm text-muted-foreground">
+        
+        {/* Terms footer with icon */}
+        <p className="mt-8 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
+          <span className="text-base">📋</span>
           By signing in, you agree to our terms of service
         </p>
       </main>

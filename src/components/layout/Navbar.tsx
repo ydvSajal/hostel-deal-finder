@@ -1,7 +1,8 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { ShoppingBasket, LogOut, MessageCircle, User, Settings, Store } from "lucide-react";
+import { ShoppingBasket, LogOut, MessageCircle, User, Settings, Store, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +21,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -150,7 +152,68 @@ const Navbar = () => {
           )}
         </div>
 
-        <div className="flex items-center gap-3 md:gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
+          {/* Mobile Menu */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="icon" className="md:hidden">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[280px] sm:w-[320px]">
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2">
+                  <ShoppingBasket className="h-5 w-5 text-brand" />
+                  <span className="text-gradient-primary">BU_Basket</span>
+                </SheetTitle>
+              </SheetHeader>
+              <nav className="mt-8 flex flex-col gap-4">
+                <Link to="/listings" className="flex items-center gap-2 text-base font-medium py-2" onClick={() => setMobileMenuOpen(false)}>
+                  Browse
+                </Link>
+                {user && (
+                  <>
+                    <Link to="/conversations" className="flex items-center gap-2 text-base font-medium py-2" onClick={() => setMobileMenuOpen(false)}>
+                      <MessageCircle className="h-5 w-5" />
+                      Messages
+                      {unreadCount > 0 && (
+                        <Badge variant="destructive" className="text-xs px-1.5 py-0.5 ml-auto">
+                          {unreadCount > 99 ? '99+' : unreadCount}
+                        </Badge>
+                      )}
+                    </Link>
+                    <Link to="/my-listings" className="flex items-center gap-2 text-base font-medium py-2" onClick={() => setMobileMenuOpen(false)}>
+                      <Store className="h-5 w-5" />
+                      My Listings
+                    </Link>
+                    <Link to="/sell" className="flex items-center gap-2 text-base font-medium py-2" onClick={() => setMobileMenuOpen(false)}>
+                      Sell Item
+                    </Link>
+                    <Link to="/profile" className="flex items-center gap-2 text-base font-medium py-2" onClick={() => setMobileMenuOpen(false)}>
+                      <User className="h-5 w-5" />
+                      Profile
+                    </Link>
+                    <Button variant="outline" onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="mt-4 justify-start">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Log out
+                    </Button>
+                  </>
+                )}
+                {!user && (
+                  <>
+                    <Link to="/sell" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="successGradient" className="w-full">Sell</Button>
+                    </Link>
+                    <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full">Login</Button>
+                    </Link>
+                  </>
+                )}
+              </nav>
+            </SheetContent>
+          </Sheet>
+
           {user ? (
             <>
               <Link to="/sell"><Button variant="successGradient" size="default" className="hidden md:inline-flex font-medium">Sell</Button></Link>

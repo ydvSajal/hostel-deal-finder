@@ -1,36 +1,67 @@
 const steps = [
-  { id: 1, title: "Account Banao", desc: "College email se sign up karo" },
-  { id: 2, title: "Cheezein Dalo ya Dhoondo", desc: "Jo bechna hai daalo, jo chahiye wo dhoondo 🔎" },
-  { id: 3, title: "Deal Pakka Karo", desc: "Mess ya lobby mein milo, done deal 🙌" },
+  { id: 1, title: "Account Banao", desc: "College email se sign up karo", icon: "🎓", color: "from-green-500 to-emerald-500" },
+  { id: 2, title: "Cheezein Dalo ya Dhoondo", desc: "Jo bechna hai daalo, jo chahiye wo dhoondo", icon: "🔎", color: "from-blue-500 to-cyan-500" },
+  { id: 3, title: "Deal Pakka Karo", desc: "Mess ya lobby mein milo, done deal", icon: "🙌", color: "from-orange-500 to-amber-500" },
 ];
 
 const HowItWorks = () => {
   return (
-    <section className="relative mx-auto max-w-6xl px-4 py-20 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-radial from-brand-2/5 via-transparent to-transparent blur-3xl" />
+    <section className="relative mx-auto max-w-7xl px-4 py-24 overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/2 left-1/4 h-96 w-96 rounded-full bg-gradient-to-br from-cyan-500/10 to-blue-500/10 blur-3xl animate-pulse" />
+      </div>
+      
       <div className="relative">
-        <h2 className="mb-12 text-center text-4xl font-bold tracking-tight">
-          Kaise Kaam Karta Hai? 🤔
-        </h2>
-        <div className="grid gap-8 md:grid-cols-3">
+        <div className="mb-16 text-center">
+          <h2 className="mb-4 text-4xl md:text-5xl font-extrabold tracking-tight">
+            Kaise Kaam Karta Hai? <span className="inline-block animate-bounce">🤔</span>
+          </h2>
+          <p className="text-lg text-muted-foreground">Teen simple steps mein deal complete karo!</p>
+        </div>
+        
+        <div className="grid gap-8 md:grid-cols-3 relative">
+          {/* Connection lines */}
+          <div className="hidden md:block absolute top-20 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-brand/30 to-transparent" />
+          
           {steps.map((s, idx) => (
             <article 
               key={s.id} 
               className="group relative"
               style={{ animationDelay: `${idx * 100}ms` }}
             >
-              <div className="relative h-full rounded-2xl border border-border/40 bg-gradient-card p-8 shadow-elegant backdrop-blur-sm transition-smooth hover-lift hover:shadow-glow hover:border-brand-2/40">
-                <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-success opacity-5 blur-2xl transition-smooth group-hover:opacity-10" />
-                <div className="relative">
-                  <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-success text-lg font-bold text-primary-foreground shadow-glow">
-                    {s.id}
+              <div className="relative h-full rounded-3xl border-2 border-transparent bg-card p-8 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 hover:border-brand/40">
+                {/* Animated background */}
+                <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${s.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
+                
+                <div className="relative z-10">
+                  {/* Step number badge */}
+                  <div className="mb-6 relative inline-block">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${s.color} rounded-2xl blur-lg opacity-50 group-hover:opacity-100 transition-opacity`} />
+                    <div className={`relative h-16 w-16 flex items-center justify-center rounded-2xl bg-gradient-to-br ${s.color} shadow-xl`}>
+                      <span className="text-3xl font-bold text-white">{s.id}</span>
+                    </div>
+                    {/* Large emoji overlay */}
+                    <div className="absolute -right-2 -top-2 text-3xl">{s.icon}</div>
                   </div>
-                  <h3 className="mb-2 text-xl font-bold">{s.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{s.desc}</p>
+                  
+                  <h3 className="mb-3 text-2xl font-bold">{s.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed text-base">{s.desc}</p>
+                  
+                  {/* Progress indicator */}
+                  <div className="mt-6">
+                    <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                      <div className={`h-full bg-gradient-to-r ${s.color} rounded-full group-hover:w-full w-0 transition-all duration-1000`} />
+                    </div>
+                  </div>
                 </div>
               </div>
+              
+              {/* Arrow connector */}
               {idx < steps.length - 1 && (
-                <div className="hidden md:block absolute -right-4 top-1/2 z-10 h-0.5 w-8 bg-gradient-to-r from-brand-2/50 to-transparent" />
+                <div className="hidden md:flex absolute -right-4 top-20 z-20 items-center justify-center h-8 w-8 rounded-full bg-background border-2 border-brand/30 shadow-lg">
+                  <span className="text-brand">→</span>
+                </div>
               )}
             </article>
           ))}

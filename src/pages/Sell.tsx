@@ -179,29 +179,59 @@ const Sell = () => {
   }
 
   return (
-    <div className="min-h-screen bg-atmospheric">
+    <div className="min-h-screen bg-atmospheric relative overflow-hidden">
+      {/* Atmospheric background blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 h-96 w-96 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 h-96 w-96 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-brand/10 to-brand-2/10 blur-3xl animate-pulse" style={{ animationDelay: '3s' }} />
+      </div>
+
       <Helmet>
-        <title>Sell an Item — BU_Basket</title>
-        <meta name="description" content="Create a listing to sell your items on BU_Basket marketplace." />
-        <link rel="canonical" href="/sell" />
+        <title>Sell Your Item — BU_Basket | List Books, Electronics & More</title>
+        <meta name="description" content="Sell your items on BU_Basket marketplace. List textbooks, electronics, furniture, and hostel essentials. Free listing, verified students only, fast & safe transactions." />
+        <meta name="keywords" content="sell items BU, sell textbooks, sell electronics, list items campus, student marketplace, sell furniture BU, hostel items sale" />
+        <link rel="canonical" href="https://bu-basket.com/sell" />
+        <meta property="og:title" content="Sell Your Item on BU_Basket" />
+        <meta property="og:description" content="List your items for free on BU's trusted student marketplace. Fast & safe." />
+        <meta property="og:url" content="https://bu-basket.com/sell" />
       </Helmet>
       <Navbar />
-      <main className="mx-auto max-w-2xl px-4 py-20">
+      <main className="relative mx-auto max-w-2xl px-4 py-16 sm:py-20">
+        {/* Decorative sparkles */}
+        <div className="absolute top-10 left-10 text-3xl animate-bounce">💰</div>
+        <div className="absolute top-20 right-10 text-3xl animate-bounce" style={{ animationDelay: '0.5s' }}>✨</div>
+        
+        {/* Page header */}
         <div className="mb-10 text-center">
-          <h1 className="mb-3 text-4xl font-bold">
-            Sell Your <span className="text-gradient-success">Item</span>
+          <div className="text-6xl sm:text-7xl mb-4 animate-bounce">🏪</div>
+          <h1 className="mb-3 text-4xl sm:text-5xl font-extrabold">
+            Sell Your <span className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent">Item</span>
           </h1>
           <p className="text-lg text-muted-foreground">
             List your item and connect with buyers on campus
           </p>
         </div>
-        <div className="relative overflow-hidden rounded-3xl border-2 border-border/30 bg-card shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-xl">
-          <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-gradient-success opacity-5 blur-3xl" />
-          <div className="relative p-8 sm:p-10">
-            <h2 className="mb-6 text-2xl font-bold">Item Details</h2>
+
+        <div className="relative overflow-hidden rounded-3xl border-2 border-brand/30 bg-gradient-to-br from-card/95 via-card/90 to-card/95 shadow-2xl backdrop-blur-xl">
+          {/* Floating gradient orbs */}
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 opacity-20 blur-3xl animate-pulse" />
+          <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 opacity-20 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+          
+          {/* Sparkle decorations */}
+          <div className="absolute top-6 right-6 text-2xl animate-bounce">🌟</div>
+          <div className="absolute bottom-6 left-6 text-2xl animate-bounce" style={{ animationDelay: '1s' }}>💫</div>
+
+          <div className="relative z-10 p-8 sm:p-10">
+            <h2 className="mb-6 text-2xl font-bold flex items-center gap-2">
+              <span className="text-3xl">📝</span>
+              Item Details
+            </h2>
             <form onSubmit={onSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="title" className="text-sm font-medium">Title *</Label>
+              <div className="space-y-3">
+                <Label htmlFor="title" className="text-sm font-semibold flex items-center gap-2">
+                  🏷️ Title *
+                </Label>
                 <Input 
                   id="title"
                   name="title"
@@ -209,12 +239,14 @@ const Sell = () => {
                   value={formData.title}
                   onChange={handleInputChange}
                   required 
-                  className="h-12 rounded-xl border-2 border-border/60 bg-background/80 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20 hover:border-border/80"
+                  className="h-14 rounded-2xl border-2 border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-300 focus:border-brand focus:ring-4 focus:ring-brand/20 text-base hover:border-brand/50"
                 />
               </div>
               <div className="grid gap-6 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="category" className="text-sm font-medium">Category *</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="category" className="text-sm font-semibold flex items-center gap-2">
+                    📚 Category *
+                  </Label>
                   <Input 
                     id="category"
                     name="category"
@@ -222,11 +254,13 @@ const Sell = () => {
                     value={formData.category}
                     onChange={handleInputChange}
                     required 
-                    className="h-12 rounded-xl border-2 border-border/60 bg-background/80 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20 hover:border-border/80"
+                    className="h-14 rounded-2xl border-2 border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-300 focus:border-brand focus:ring-4 focus:ring-brand/20 text-base hover:border-brand/50"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="price" className="text-sm font-medium">Price (₹) *</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="price" className="text-sm font-semibold flex items-center gap-2">
+                    💵 Price (₹) *
+                  </Label>
                   <Input 
                     id="price"
                     name="price"
@@ -236,12 +270,14 @@ const Sell = () => {
                     value={formData.price}
                     onChange={handleInputChange}
                     required 
-                    className="h-12 rounded-xl border-2 border-border/60 bg-background/80 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20 hover:border-border/80"
+                    className="h-14 rounded-2xl border-2 border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-300 focus:border-brand focus:ring-4 focus:ring-brand/20 text-base hover:border-brand/50"
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+              <div className="space-y-3">
+                <Label htmlFor="description" className="text-sm font-semibold flex items-center gap-2">
+                  📄 Description
+                </Label>
                 <Textarea 
                   id="description"
                   name="description"
@@ -249,28 +285,61 @@ const Sell = () => {
                   rows={4}
                   value={formData.description}
                   onChange={handleInputChange}
-                  className="rounded-xl border-2 border-border/60 bg-background/80 backdrop-blur-sm transition-smooth focus:border-brand focus:ring-brand/20 resize-none hover:border-border/80"
+                  className="rounded-2xl border-2 border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-300 focus:border-brand focus:ring-4 focus:ring-brand/20 resize-none hover:border-brand/50 text-base"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="images" className="text-sm font-medium">Images (Max 3)</Label>
+              <div className="space-y-3">
+                <Label htmlFor="images" className="text-sm font-semibold flex items-center gap-2">
+                  📸 Images (Max 3)
+                </Label>
                 <Input 
                   id="images"
                   type="file" 
                   accept="image/*" 
                   multiple 
                   onChange={handleImageChange}
-                  className="h-12 rounded-xl border-2 border-border/60 bg-background/80 backdrop-blur-sm transition-smooth file:mr-4 file:rounded-lg file:border-0 file:bg-brand file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-foreground hover:file:bg-brand/90 hover:border-border/80"
+                  className="h-14 rounded-2xl border-2 border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-300 focus:border-brand focus:ring-4 focus:ring-brand/20 text-base hover:border-brand/50 file:mr-4 file:h-10 file:rounded-xl file:border-0 file:bg-gradient-to-r file:from-brand file:to-brand-2 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:opacity-90 cursor-pointer"
                 />
                 {selectedImages.length > 0 && (
-                  <p className="mt-2 text-sm text-success">
-                    ✓ {selectedImages.length} image(s) selected
-                  </p>
+                  <div className="mt-3 flex items-center gap-2 rounded-xl border-2 border-green-500/30 bg-green-500/10 px-4 py-3">
+                    <span className="text-xl">✅</span>
+                    <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                      {selectedImages.length} image(s) selected
+                    </p>
+                  </div>
                 )}
               </div>
-              <Button type="submit" variant="successGradient" size="lg" className="w-full rounded-xl shadow-glow" disabled={uploading}>
-                {uploading ? "Publishing..." : "Publish Listing"}
+              <Button 
+                type="submit" 
+                className="w-full h-14 rounded-2xl bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white font-bold text-lg shadow-2xl hover:scale-105 hover:shadow-glow transition-all duration-300" 
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin">⏳</span> Publishing...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    🚀 Publish Listing
+                  </span>
+                )}
               </Button>
+
+              {/* Trust badges */}
+              <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground pt-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-lg">🔒</span>
+                  <span>Secure</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-lg">⚡</span>
+                  <span>Fast</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-lg">🤝</span>
+                  <span>Trusted</span>
+                </div>
+              </div>
             </form>
           </div>
         </div>

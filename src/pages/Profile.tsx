@@ -168,8 +168,9 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-atmospheric">
       <Helmet>
-        <title>Profile — BU_Basket</title>
-        <meta name="description" content="Manage your BU_Basket profile and account settings." />
+        <title>Your Profile — BU_Basket | Account Settings</title>
+        <meta name="description" content="Manage your BU_Basket profile, update personal information, and customize your marketplace settings. Verified student account." />
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       
       <Navbar />

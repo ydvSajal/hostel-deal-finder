@@ -223,20 +223,28 @@ const Conversations = () => {
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-atmospheric relative overflow-hidden flex flex-col">
+        {/* Atmospheric background blobs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 h-96 w-96 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-10 h-96 w-96 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+        </div>
         <Helmet>
           <title>Conversations — BU_Basket</title>
         </Helmet>
         <Navbar />
-        <main className="mx-auto max-w-4xl px-4 py-10">
-          <Card>
-            <CardHeader>
-              <CardTitle>Authentication Required</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Please log in to view your conversations.</p>
-            </CardContent>
-          </Card>
+        <main className="relative mx-auto max-w-4xl px-4 py-16 sm:py-20">
+          <div className="relative overflow-hidden rounded-3xl border-2 border-brand/30 bg-gradient-to-br from-card/95 via-card/90 to-card/95 p-12 shadow-2xl backdrop-blur-xl text-center">
+            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 opacity-20 blur-3xl animate-pulse" />
+            <div className="relative">
+              <div className="text-6xl mb-4 animate-bounce">🔐</div>
+              <h2 className="text-2xl font-bold mb-4">Authentication Required</h2>
+              <p className="mb-6 text-lg text-muted-foreground">Please log in to view your conversations.</p>
+              <Button variant="hero" size="lg" className="rounded-2xl shadow-glow" onClick={() => navigate('/login')}>
+                🚀 Go to Login
+              </Button>
+            </div>
+          </div>
         </main>
         <Footer />
       </div>
@@ -245,13 +253,21 @@ const Conversations = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-atmospheric relative overflow-hidden flex flex-col">
+        {/* Atmospheric background blobs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 h-96 w-96 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-10 h-96 w-96 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+        </div>
         <Helmet>
           <title>Conversations — BU_Basket</title>
         </Helmet>
         <Navbar />
-        <main className="mx-auto max-w-4xl px-4 py-10">
-          <p>Loading conversations...</p>
+        <main className="flex-1 relative mx-auto max-w-4xl px-4 py-16 sm:py-20">
+          <div className="text-center">
+            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-brand border-t-transparent mb-4" />
+            <p className="text-lg text-muted-foreground">Loading conversations...</p>
+          </div>
         </main>
         <Footer />
       </div>
@@ -259,22 +275,49 @@ const Conversations = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-atmospheric relative overflow-hidden flex flex-col">
+      {/* Atmospheric background blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 h-96 w-96 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 h-96 w-96 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-brand/10 to-brand-2/10 blur-3xl animate-pulse" style={{ animationDelay: '3s' }} />
+      </div>
+
       <Helmet>
         <title>Conversations — BU_Basket</title>
         <meta name="description" content="View and manage your conversations on BU_Basket." />
         <link rel="canonical" href="/conversations" />
       </Helmet>
       <Navbar />
-      <main className="mx-auto max-w-4xl px-4 py-10">
-        <h1 className="mb-6 text-3xl font-bold">Your Conversations</h1>
+      <main className="flex-1 relative mx-auto max-w-4xl px-4 py-16 sm:py-20">
+        {/* Decorative sparkles */}
+        <div className="absolute top-10 left-10 text-3xl animate-bounce">💬</div>
+        <div className="absolute top-20 right-10 text-3xl animate-bounce" style={{ animationDelay: '0.5s' }}>✨</div>
+        
+        {/* Page header */}
+        <div className="mb-10 text-center">
+          <div className="text-6xl sm:text-7xl mb-4 animate-bounce">💭</div>
+          <h1 className="mb-3 text-4xl sm:text-5xl font-extrabold">
+            Your <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-brand-2 bg-clip-text text-transparent">Conversations</span>
+          </h1>
+          <p className="text-lg text-muted-foreground">
+            Manage your chats with buyers and sellers
+          </p>
+        </div>
         
         {conversations.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">No conversations yet.</p>
-            <p className="text-sm text-muted-foreground">
-              Start chatting by visiting a <Link to="/listings" className="text-primary underline">listing</Link> and clicking "Chat with seller".
-            </p>
+          <div className="relative overflow-hidden rounded-3xl border-2 border-brand/30 bg-gradient-to-br from-card/95 via-card/90 to-card/95 p-16 shadow-2xl backdrop-blur-xl text-center">
+            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 opacity-20 blur-3xl animate-pulse" />
+            <div className="relative">
+              <div className="text-7xl mb-4 animate-bounce">📭</div>
+              <p className="text-xl font-semibold text-muted-foreground mb-4">No conversations yet.</p>
+              <p className="text-base text-muted-foreground mb-6">
+                Start chatting by visiting a listing and clicking "Chat with seller".
+              </p>
+              <Button variant="hero" size="lg" className="rounded-2xl shadow-glow" onClick={() => navigate('/listings')}>
+                🛍️ Browse Listings
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
@@ -283,26 +326,29 @@ const Conversations = () => {
               const otherUserRole = isSellerView ? 'Buyer' : 'Seller';
               
               return (
-                <Card 
-                  key={conversation.id} 
-                  className="hover:shadow-lg transition-all duration-300 cursor-pointer"
+                <div
+                  key={conversation.id}
+                  className="relative overflow-hidden rounded-3xl border-2 border-border/30 bg-gradient-to-br from-card/95 via-card/90 to-card/95 shadow-lg backdrop-blur-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 cursor-pointer"
                   onClick={() => navigate(`/chat?conversation_id=${conversation.id}`)}
                 >
-                  <CardContent className="p-4">
+                  <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-gradient-to-br from-brand/10 to-brand-2/10 blur-2xl" />
+                  <div className="relative p-5">
                     <div className="flex gap-4">
                       <img
                         src={conversation.listing.image_url || "/placeholder.svg"}
                         alt={conversation.listing.title}
-                        className="w-16 h-16 rounded-lg object-cover"
+                        className="w-20 h-20 rounded-2xl object-cover border-2 border-border/30 shadow-md"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                           <div>
-                            <h3 className="font-semibold text-lg truncate">
+                            <h3 className="font-bold text-lg truncate flex items-center gap-2">
+                              <span className="text-xl">💼</span>
                               {conversation.listing.title}
                             </h3>
-                            <p className="text-sm text-muted-foreground">
-                              {otherUserRole}: {conversation.other_user_name} • ₹{conversation.listing.price}
+                            <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
+                              <span className="text-base">{otherUserRole === 'Buyer' ? '🛒' : '🏪'}</span>
+                              {otherUserRole}: {conversation.other_user_name} • <span className="font-semibold text-brand">₹{conversation.listing.price}</span>
                             </p>
                           </div>
                            <div className="flex items-center gap-2">
@@ -311,13 +357,13 @@ const Conversations = () => {
                                  <Button
                                    size="sm"
                                    variant="ghost"
-                                   className="h-6 w-6 p-0 hover:bg-muted/50"
+                                   className="h-8 w-8 p-0 hover:bg-brand/10 hover:text-brand rounded-xl transition-all"
                                    onClick={(e) => markConversationAsRead(conversation.id, e)}
                                    title="Mark as read"
                                  >
-                                   <Check className="h-3 w-3" />
+                                   <Check className="h-4 w-4" />
                                  </Button>
-                                 <Badge variant="destructive" className="text-xs">
+                                 <Badge className="bg-gradient-to-r from-pink-500 to-red-500 text-white border-0 text-xs px-2 py-1 rounded-xl">
                                    {conversation.unread_count}
                                  </Badge>
                                </>
@@ -325,29 +371,31 @@ const Conversations = () => {
                              <Button
                                size="sm"
                                variant="ghost"
-                               className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
+                               className="h-8 w-8 p-0 hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-all"
                                onClick={(e) => handleDeleteConversation(conversation.id, e)}
                                title="Delete conversation"
                              >
-                               <Trash2 className="h-3 w-3" />
+                               <Trash2 className="h-4 w-4" />
                              </Button>
-                             <span className="text-xs text-muted-foreground">
+                             <span className="text-xs text-muted-foreground flex items-center gap-1">
+                               <span>⏰</span>
                                {formatDistanceToNow(new Date(conversation.updated_at), { addSuffix: true })}
                              </span>
                            </div>
                         </div>
                         {conversation.last_message && (
-                          <div className="mt-2">
-                            <p className="text-sm text-muted-foreground truncate">
-                              {conversation.last_message.sender_id === currentUser.id ? 'You: ' : ''}
+                          <div className="mt-3 p-3 rounded-xl bg-muted/50 border border-border/30">
+                            <p className="text-sm text-muted-foreground truncate flex items-center gap-1.5">
+                              <span className="text-base">💬</span>
+                              {conversation.last_message.sender_id === currentUser.id ? <span className="font-medium text-brand">You:</span> : ''}
                               {conversation.last_message.content}
                             </p>
                           </div>
                         )}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               );
             })}
           </div>

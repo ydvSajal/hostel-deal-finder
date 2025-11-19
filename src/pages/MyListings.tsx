@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Store, Trash2, Plus, RefreshCw, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Helmet } from "react-helmet-async";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -153,9 +154,14 @@ const MyListings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
+      <Helmet>
+        <title>My Listings — BU_Basket | Manage Your Items</title>
+        <meta name="description" content="Manage your listings on BU_Basket. Edit, delete, or update your items for sale." />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
+      <div className="flex-1 container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <Store className="h-8 w-8 text-[hsl(var(--brand))]" />

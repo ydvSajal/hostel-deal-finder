@@ -307,21 +307,25 @@ const ChatContent = () => {
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-atmospheric relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 h-96 w-96 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-10 h-96 w-96 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+        </div>
         <Helmet>
           <title>Chat — BU_Basket</title>
           <meta name="description" content="Private messaging between buyers and sellers on BU_Basket." />
         </Helmet>
         <Navbar />
-        <main className="mx-auto flex h-[calc(100vh-8rem)] w-full max-w-6xl flex-col items-center justify-center px-4 lg:px-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Authentication Required</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Please log in to access the chat feature.</p>
-            </CardContent>
-          </Card>
+        <main className="relative mx-auto flex h-[calc(100vh-8rem)] w-full max-w-6xl flex-col items-center justify-center px-4 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl border-2 border-brand/30 bg-gradient-to-br from-card/95 via-card/90 to-card/95 p-12 shadow-2xl backdrop-blur-xl text-center max-w-md">
+            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 opacity-20 blur-3xl animate-pulse" />
+            <div className="relative">
+              <div className="text-6xl mb-4 animate-bounce">🔐</div>
+              <h2 className="text-2xl font-bold mb-4">Authentication Required</h2>
+              <p className="mb-6 text-muted-foreground">Please log in to access the chat feature.</p>
+            </div>
+          </div>
         </main>
         <Footer />
       </div>
@@ -334,13 +338,20 @@ const ChatContent = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-atmospheric relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 h-96 w-96 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-10 h-96 w-96 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+        </div>
         <Helmet>
           <title>Chat — BU_Basket</title>
         </Helmet>
         <Navbar />
-        <main className="mx-auto flex h-[calc(100vh-8rem)] w-full max-w-6xl flex-col items-center justify-center px-4 lg:px-8">
-          <p>Loading conversation...</p>
+        <main className="relative mx-auto flex h-[calc(100vh-8rem)] w-full max-w-6xl flex-col items-center justify-center px-4 lg:px-8">
+          <div className="text-center">
+            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-brand border-t-transparent mb-4" />
+            <p className="text-lg text-muted-foreground">Loading conversation...</p>
+          </div>
         </main>
         <Footer />
       </div>
@@ -349,23 +360,26 @@ const ChatContent = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-atmospheric relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 h-96 w-96 rounded-full bg-gradient-to-br from-red-500/20 to-orange-500/20 blur-3xl animate-pulse" />
+        </div>
         <Helmet>
           <title>Chat — BU_Basket</title>
         </Helmet>
         <Navbar />
-        <main className="mx-auto flex h-[calc(100vh-8rem)] w-full max-w-6xl flex-col items-center justify-center px-4 lg:px-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Error loading conversation</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-destructive mb-4">{error}</p>
-              <Button onClick={() => window.history.back()}>
+        <main className="relative mx-auto flex h-[calc(100vh-8rem)] w-full max-w-6xl flex-col items-center justify-center px-4 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl border-2 border-red-500/30 bg-gradient-to-br from-card/95 via-card/90 to-card/95 p-12 shadow-2xl backdrop-blur-xl text-center max-w-md">
+            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-red-500 to-orange-500 opacity-20 blur-3xl animate-pulse" />
+            <div className="relative">
+              <div className="text-6xl mb-4">⚠️</div>
+              <h2 className="text-2xl font-bold mb-4">Error loading conversation</h2>
+              <p className="text-red-500 mb-6 font-medium">{error}</p>
+              <Button variant="outline" className="rounded-2xl border-2" onClick={() => window.history.back()}>
                 ← Back
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </main>
         <Footer />
       </div>
@@ -373,26 +387,41 @@ const ChatContent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-atmospheric relative overflow-hidden">
+      {/* Atmospheric background blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 h-96 w-96 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 h-96 w-96 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+      </div>
+
       <Helmet>
         <title>Chat — BU_Basket</title>
         <meta name="description" content="Private messaging between buyers and sellers on BU_Basket." />
         <link rel="canonical" href="/chat" />
       </Helmet>
       <Navbar />
-      <main className="mx-auto flex h-[calc(100vh-8rem)] w-full max-w-6xl flex-col px-4 py-6 lg:px-8">
+      <main className="relative mx-auto flex h-[calc(100vh-8rem)] w-full max-w-6xl flex-col px-4 py-6 lg:px-8">
         {conversation?.listing && (
-          <div className="mb-4 rounded-xl border bg-card p-4 shadow-sm">
+          <div className="mb-4 rounded-2xl border-2 border-brand/30 bg-gradient-to-br from-card/95 via-card/90 to-card/95 p-5 shadow-xl backdrop-blur-xl">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-lg font-semibold">{conversation.listing.title}</h1>
-                <p className="text-sm text-muted-foreground">
-                  ₹{conversation.listing.price} • Chat with {currentUser.id === conversation.seller_id ? 'buyer' : 'seller'}
+                <h1 className="text-xl font-bold flex items-center gap-2">
+                  <span className="text-2xl">💼</span>
+                  {conversation.listing.title}
+                </h1>
+                <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                  <span className="font-semibold text-brand">₹{conversation.listing.price}</span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">
+                    <span className="text-base">{currentUser.id === conversation.seller_id ? '🛒' : '🏪'}</span>
+                    Chat with {currentUser.id === conversation.seller_id ? 'buyer' : 'seller'}
+                  </span>
                 </p>
               </div>
               <Button
                 variant="outline"
                 size="sm"
+                                className="rounded-xl border-2 hover:border-brand/50 transition-all"
                 onClick={() => window.history.back()}
               >
                 ← Back
@@ -400,10 +429,12 @@ const ChatContent = () => {
             </div>
           </div>
         )}
-        <div className="flex-1 space-y-3 overflow-y-auto rounded-xl border bg-card p-4 min-h-0">
+        <div className="flex-1 space-y-3 overflow-y-auto rounded-2xl border-2 border-border/30 bg-gradient-to-br from-card/95 via-card/90 to-card/95 p-6 min-h-0 shadow-xl backdrop-blur-xl">
           {messages.length === 0 ? (
-            <div className="text-center text-muted-foreground py-8">
-              <p>No messages yet. Start the conversation!</p>
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4 animate-bounce">💬</div>
+              <p className="text-lg font-medium text-muted-foreground">No messages yet</p>
+              <p className="text-sm text-muted-foreground mt-2">Start the conversation!</p>
             </div>
           ) : (
             messages.map((message) => {
@@ -414,9 +445,10 @@ const ChatContent = () => {
               });
 
               return (
-                <div key={message.id} className={`max-w-[80%] lg:max-w-[70%] rounded-2xl px-3 py-2 text-sm ${isMe ? "ml-auto bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white" : "bg-secondary"}`}>
-                  <p>{message.content}</p>
-                  <p className={`text-xs mt-1 ${isMe ? "text-white/70" : "text-muted-foreground"}`}>
+                <div key={message.id} className={`max-w-[80%] lg:max-w-[70%] rounded-2xl px-4 py-3 text-sm shadow-md ${isMe ? "ml-auto bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white" : "bg-gradient-to-br from-secondary to-secondary/80 border-2 border-border/20"}`}>
+                  <p className="leading-relaxed">{message.content}</p>
+                  <p className={`text-xs mt-2 flex items-center gap-1 ${isMe ? "text-white/70" : "text-muted-foreground"}`}>
+                    <span>⏰</span>
                     {messageTime}
                   </p>
                 </div>
@@ -425,14 +457,20 @@ const ChatContent = () => {
           )}
           <div ref={messagesEndRef} />
         </div>
-        <form onSubmit={sendMessage} className="mt-3 flex gap-2">
+        <form onSubmit={sendMessage} className="mt-4 flex gap-3">
           <Input
-            className="flex-1"
-            placeholder="Write a message..."
+            className="flex-1 h-14 rounded-2xl border-2 border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-300 focus:border-brand focus:ring-4 focus:ring-brand/20 text-base hover:border-brand/50"
+            placeholder="✍️ Write a message..."
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}
           />
-          <Button type="submit" className="bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white hover:shadow-glow transition-all duration-300">Send</Button>
+          <Button 
+            type="submit" 
+            className="h-14 px-8 rounded-2xl bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-bold hover:scale-105 hover:shadow-glow transition-all duration-300 flex items-center gap-2"
+          >
+            <span>Send</span>
+            <span>🚀</span>
+          </Button>
         </form>
       </main>
       <Footer />
