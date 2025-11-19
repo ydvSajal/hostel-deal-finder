@@ -106,6 +106,11 @@ const Profile = () => {
     
     setSaving(true);
     try {
+      // Clean mobile number by removing spaces and hyphens before saving
+      const cleanedMobileNumber = profileData.mobile_number?.trim() 
+        ? profileData.mobile_number.replace(/[\s\-]/g, '')
+        : null;
+
       const { error } = await supabase
         .from('profiles')
         .upsert({
@@ -113,7 +118,7 @@ const Profile = () => {
           display_name: profileData.display_name?.trim(),
           bio: profileData.bio?.trim(),
           full_name: profileData.full_name?.trim(),
-          mobile_number: profileData.mobile_number?.trim(),
+          mobile_number: cleanedMobileNumber,
           hostel_name: profileData.hostel_name?.trim(),
           room_number: profileData.room_number?.trim(),
         });
