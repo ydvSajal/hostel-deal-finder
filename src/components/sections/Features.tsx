@@ -20,19 +20,32 @@ const features = [
 
 const Features = () => {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-14">
-      <h2 className="mb-2 text-center text-3xl font-bold tracking-tight">Hostel waale <span className="text-gradient-primary">BU_Basket</span> kyun?</h2>
-      <p className="mb-8 text-center text-muted-foreground">Campus ke andar hi deals — fast, friendly, aur bilkul simple.</p>
-      <div className="grid gap-6 md:grid-cols-3">
-        {features.map(({ title, desc, Icon }) => (
-          <div key={title} className="rounded-xl border bg-card p-6 shadow-sm backdrop-blur">
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
-              <Icon className="h-5 w-5 text-[hsl(var(--brand-2))]" />
+    <section className="relative mx-auto max-w-6xl px-4 py-20">
+      <div className="absolute inset-0 bg-gradient-radial from-brand/5 via-transparent to-transparent blur-3xl" />
+      <div className="relative">
+        <div className="mb-12 text-center">
+          <h2 className="mb-3 text-4xl font-bold tracking-tight">
+            Hostel waale <span className="text-gradient-primary">BU_Basket</span> kyun?
+          </h2>
+          <p className="text-lg text-muted-foreground">Campus ke andar hi deals — fast, friendly, aur bilkul simple.</p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          {features.map(({ title, desc, Icon }) => (
+            <div 
+              key={title} 
+              className="group relative overflow-hidden rounded-2xl border border-border/40 bg-gradient-card p-8 shadow-elegant backdrop-blur-sm transition-smooth hover-lift hover:shadow-glow hover:border-brand/40"
+            >
+              <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-primary opacity-5 blur-2xl transition-smooth group-hover:opacity-10" />
+              <div className="relative">
+                <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-primary shadow-glow">
+                  <Icon className="h-7 w-7 text-primary-foreground" />
+                </div>
+                <h3 className="mb-2 text-xl font-bold">{title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{desc}</p>
+              </div>
             </div>
-            <h3 className="mb-1 font-semibold">{title}</h3>
-            <p className="text-sm text-muted-foreground">{desc}</p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

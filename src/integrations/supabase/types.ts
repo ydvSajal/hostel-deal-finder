@@ -257,18 +257,9 @@ export type Database = {
         Args: { display_name: string; user_id: string }
         Returns: boolean
       }
-      check_otp_rate_limit: {
-        Args: { user_email: string }
-        Returns: boolean
-      }
-      cleanup_orphaned_avatars: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_orphaned_product_images: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      check_otp_rate_limit: { Args: { user_email: string }; Returns: boolean }
+      cleanup_orphaned_avatars: { Args: never; Returns: undefined }
+      cleanup_orphaned_product_images: { Args: never; Returns: undefined }
       delete_product_image_from_storage: {
         Args: { image_url: string }
         Returns: undefined
@@ -312,7 +303,7 @@ export type Database = {
         }[]
       }
       get_public_listings: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           category: string
           created_at: string
@@ -336,7 +327,7 @@ export type Database = {
         }[]
       }
       get_safe_profiles: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           avatar_url: string
           bio: string
@@ -377,10 +368,7 @@ export type Database = {
         Args: { conversation_id: string; user_id: string }
         Returns: undefined
       }
-      start_conversation: {
-        Args: { p_listing_id: string }
-        Returns: string
-      }
+      start_conversation: { Args: { p_listing_id: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
