@@ -195,7 +195,7 @@ const Sell = () => {
             List your item and connect with buyers on campus
           </p>
         </div>
-        <div className="relative overflow-hidden rounded-3xl border border-brand/20 bg-gradient-card shadow-elegant backdrop-blur-xl">
+        <div className="relative overflow-hidden rounded-3xl border-2 border-border/30 bg-card shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-xl">
           <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-gradient-success opacity-5 blur-3xl" />
           <div className="relative p-8 sm:p-10">
             <h2 className="mb-6 text-2xl font-bold">Item Details</h2>
