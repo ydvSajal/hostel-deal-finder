@@ -221,11 +221,11 @@ const MyListings = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {listings.map((listing) => (
               <Card key={listing.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="aspect-video relative">
+                <div className="aspect-[4/3] relative bg-muted/20 flex items-center justify-center">
                   <img
                     src={listing.image_url || "/placeholder.svg"}
                     alt={listing.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain p-2"
                     onError={(e) => {
                       e.currentTarget.src = "/placeholder.svg";
                     }}
