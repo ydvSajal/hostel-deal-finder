@@ -14,20 +14,22 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative overflow-hidden min-h-[100dvh] flex items-center justify-center touch-pan-y">
-      {/* Ballpit Animation Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none" style={{ willChange: 'transform' }}>
-        <Ballpit
-          count={isMobile ? 30 : 150}
-          gravity={isMobile ? 0.5 : 0.7}
-          friction={isMobile ? 0.85 : 0.8}
-          wallBounce={0.95}
-          followCursor={false}
-        />
-      </div>
+    <section className="relative min-h-[100dvh] flex items-center justify-center">
+      {/* Ballpit Animation Background - Hidden on mobile for performance */}
+      {!isMobile && (
+        <div className="absolute inset-0 z-0 pointer-events-none" style={{ willChange: 'transform' }}>
+          <Ballpit
+            count={150}
+            gravity={0.7}
+            friction={0.8}
+            wallBounce={0.95}
+            followCursor={false}
+          />
+        </div>
+      )}
       
       {/* Content overlay */}
-      <div className="mx-auto max-w-6xl px-4 py-8 md:py-12 text-center relative z-10 w-full pointer-events-auto">
+      <div className="mx-auto max-w-6xl px-4 py-8 md:py-12 text-center relative z-10 w-full">
         <p className="mb-4 text-xs sm:text-sm md:text-base text-muted-foreground backdrop-blur-sm bg-background/30 inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">Apne hostel ka OLX — BU Campus</p>
         <h1 className="mx-auto max-w-3xl text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-tight tracking-tight">
           <span className="text-gradient-primary drop-shadow-lg">BU_Basket</span> <span className="text-foreground drop-shadow-lg">Campus</span>

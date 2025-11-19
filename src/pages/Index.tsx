@@ -47,7 +47,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-atmospheric overflow-x-hidden">
+    <div className="min-h-screen bg-atmospheric overflow-x-hidden overflow-y-auto">
       <Helmet>
         <title>BU_Basket — Campus Marketplace for BU Students | Buy, Sell & Borrow</title>
         <meta name="description" content="BU_Basket is the trusted student marketplace for BU campus. Buy, sell, and borrow textbooks, electronics, furniture, and daily essentials. Safe transactions with verified college email. Join 1000+ BU students today!" />

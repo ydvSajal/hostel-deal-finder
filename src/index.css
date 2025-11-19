@@ -16,8 +16,10 @@ body {
 
 /* Prevent canvas from blocking touch events */
 canvas {
-  touch-action: none !important;
+  touch-action: pan-y !important;
   pointer-events: none !important;
+  position: fixed !important;
+  z-index: 0 !important;
 }
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
