@@ -15,10 +15,10 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative min-h-[100dvh] flex items-center justify-center">
+    <section className="relative h-screen max-h-screen overflow-hidden flex items-center justify-center">
       {/* Desktop: Ballpit Animation Background */}
       {!isMobile && (
-        <div className="absolute inset-0 z-0 pointer-events-none" style={{ willChange: 'transform' }}>
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" style={{ willChange: 'transform' }}>
           <Ballpit
             count={150}
             gravity={0.7}
@@ -31,7 +31,7 @@ const Hero = () => {
       
       {/* Mobile: Custom Floating Animation */}
       {isMobile && (
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 overflow-hidden">
           <MobileHeroAnimation />
         </div>
       )}
