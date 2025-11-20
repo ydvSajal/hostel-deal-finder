@@ -15,23 +15,18 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-[100dvh] flex items-center justify-center">
-      {/* Ballpit Animation Background - Optimized for all devices */}
-      <div 
-        className="absolute inset-0 z-0 pointer-events-none" 
-        style={{ 
-          willChange: 'transform',
-          transform: 'translate3d(0,0,0)',
-          backfaceVisibility: 'hidden'
-        }}
-      >
-        <Ballpit
-          count={isMobile ? 50 : 150}
-          gravity={0.6}
-          friction={0.85}
-          wallBounce={0.92}
-          followCursor={false}
-        />
-      </div>
+      {/* Ballpit Animation Background - Hidden on mobile for performance */}
+      {!isMobile && (
+        <div className="absolute inset-0 z-0 pointer-events-none" style={{ willChange: 'transform' }}>
+          <Ballpit
+            count={150}
+            gravity={0.7}
+            friction={0.8}
+            wallBounce={0.95}
+            followCursor={false}
+          />
+        </div>
+      )}
       
       {/* Content overlay */}
       <div className="mx-auto max-w-6xl px-4 py-8 md:py-12 text-center relative z-10 w-full">
