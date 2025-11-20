@@ -39,11 +39,9 @@ const MyListings = () => {
 
   const loadUserListings = useCallback(async () => {
     if (!user?.id) {
-      console.log('No user or user ID found, skipping listings load');
       return;
     }
     
-    console.log('Loading listings for user:', user.id);
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -60,7 +58,6 @@ const MyListings = () => {
           variant: "destructive"
         });
       } else {
-        console.log('Loaded listings:', data);
         setListings(data || []);
       }
     } catch (error) {

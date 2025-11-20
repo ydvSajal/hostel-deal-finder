@@ -15,10 +15,7 @@ export const useAuth = () => {
       setLoading(false);
       
       // Handle session timeout
-      if (event === 'TOKEN_REFRESHED' && session) {
-        // Session refreshed successfully
-        console.log('Session refreshed');
-      } else if (event === 'SIGNED_OUT') {
+      if (event === 'SIGNED_OUT') {
         // Clear any sensitive data from memory
         setSession(null);
         setUser(null);

@@ -46,18 +46,15 @@ const MyListingsDropdown = () => {
 
   const loadUserListings = useCallback(async (force = false) => {
     if (!user) {
-      console.log('No user, skipping load');
       return;
     }
     
     // Check cache validity
     const now = Date.now();
     if (!force && lastFetch && (now - lastFetch) < CACHE_DURATION) {
-      console.log('Using cached data, not reloading');
       return; // Use cached data
     }
     
-    console.log('Loading user listings...');
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -75,7 +72,6 @@ const MyListingsDropdown = () => {
           variant: "destructive"
         });
       } else {
-        console.log('Loaded listings:', data?.length || 0);
         setListings(data || []);
         setLastFetch(now);
       }
@@ -100,11 +96,9 @@ const MyListingsDropdown = () => {
 
   const handleDeleteListing = useCallback(async (listingId: string) => {
     if (!user || deletingListingId) {
-      console.log('Delete blocked: user or already deleting', { user: !!user, deletingListingId });
       return; // Prevent multiple simultaneous deletes
     }
     
-    console.log('Starting delete for listing:', listingId);
     setDeletingListingId(listingId);
     
     try {
@@ -122,13 +116,8 @@ const MyListingsDropdown = () => {
           variant: "destructive"
         });
       } else {
-        console.log('Delete successful, updating UI');
         // Optimistically update UI
-        setListings(prev => {
-          const newListings = prev.filter(listing => listing.id !== listingId);
-          console.log('Updated listings count:', newListings.length);
-          return newListings;
-        });
+        setListings(prev => prev.filter(listing => listing.id !== listingId));
         toast({
           title: "Success",
           description: "Listing deleted successfully.",
@@ -142,23 +131,18 @@ const MyListingsDropdown = () => {
         variant: "destructive"
       });
     } finally {
-      console.log('Delete operation finished');
       setDeletingListingId(null);
       setDeleteListingId(null);
     }
   }, [user, deletingListingId]);
 
   const handleDropdownOpenChange = useCallback((open: boolean) => {
-    console.log('Dropdown open change:', open);
     setIsOpen(open);
     if (open) {
       // Only reload if cache is stale
       const now = Date.now();
       if (!lastFetch || (now - lastFetch) > CACHE_DURATION) {
-        console.log('Cache stale, reloading listings');
         loadUserListings();
-      } else {
-        console.log('Using cached listings');
       }
     }
   }, [CACHE_DURATION, lastFetch]); // Removed loadUserListings from dependencies
@@ -192,7 +176,6 @@ const MyListingsDropdown = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('Manual refresh clicked');
                   loadUserListings(true);
                 }}
                 disabled={loading}
@@ -249,9 +232,7 @@ const MyListingsDropdown = () => {
                        onClick={(e) => {
                          e.preventDefault();
                          e.stopPropagation();
-                         console.log('Delete button clicked for:', listing.id);
                          if (deletingListingId) {
-                           console.log('Delete already in progress, ignoring');
                            return;
                          }
                          setDeleteListingId(listing.id);
@@ -286,10 +267,7 @@ const MyListingsDropdown = () => {
               disabled={!!deletingListingId}
               onClick={() => {
                 if (deleteListingId && !deletingListingId) {
-                  console.log('Confirm delete clicked for:', deleteListingId);
                   handleDeleteListing(deleteListingId);
-                } else {
-                  console.log('Delete confirm blocked - already deleting');
                 }
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"

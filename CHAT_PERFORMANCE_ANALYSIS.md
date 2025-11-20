@@ -1,4 +1,4 @@
-# Chat Performance Analysis & Fixes
+  # Chat Performance Analysis & Fixes
 
 ## 🚨 Critical Issues Fixed
 

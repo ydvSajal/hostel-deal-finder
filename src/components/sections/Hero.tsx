@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import Ballpit from "@/components/Ballpit";
+import MobileHeroAnimation from "@/components/MobileHeroAnimation";
 import { useEffect, useState } from "react";
 
 const Hero = () => {
@@ -15,7 +16,7 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-[100dvh] flex items-center justify-center">
-      {/* Ballpit Animation Background - Hidden on mobile for performance */}
+      {/* Desktop: Ballpit Animation Background */}
       {!isMobile && (
         <div className="absolute inset-0 z-0 pointer-events-none" style={{ willChange: 'transform' }}>
           <Ballpit
@@ -25,6 +26,13 @@ const Hero = () => {
             wallBounce={0.95}
             followCursor={false}
           />
+        </div>
+      )}
+      
+      {/* Mobile: Custom Floating Animation */}
+      {isMobile && (
+        <div className="absolute inset-0 z-0">
+          <MobileHeroAnimation />
         </div>
       )}
       
