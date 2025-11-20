@@ -65,6 +65,21 @@ const ProfileAvatar = ({ size = "md", showUploadButton = false, userId }: Profil
       const fileExt = file.name.split('.').pop();
       const filePath = `${user!.id}/${user!.id}-${Math.random()}.${fileExt}`;
 
+      // Delete old avatar if it exists
+      if (avatarUrl) {
+        try {
+          const oldFilePath = avatarUrl.split('/avatars/').pop();
+          if (oldFilePath) {
+            await supabase.storage
+              .from('avatars')
+              .remove([oldFilePath]);
+          }
+        } catch (deleteError) {
+          console.error('Error deleting old avatar:', deleteError);
+          // Continue with upload even if delete fails
+        }
+      }
+
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file);
