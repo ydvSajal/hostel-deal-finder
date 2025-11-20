@@ -124,7 +124,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-[100] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-sm">
       <nav className="mx-auto flex h-16 md:h-18 max-w-7xl items-center justify-between px-4 md:px-6">
         <Link to="/" className="flex items-center gap-2 md:gap-3">
           <ShoppingBasket className="h-6 w-6 md:h-7 md:w-7 text-[hsl(var(--brand))]" aria-hidden />
