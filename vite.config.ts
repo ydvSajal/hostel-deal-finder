@@ -32,15 +32,12 @@ export default defineConfig(({ mode }) => ({
       },
     },
     target: 'esnext',
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: mode === 'production',
-        drop_debugger: mode === 'production',
-      },
-    },
+    minify: 'esbuild',
     sourcemap: mode !== 'production',
     chunkSizeWarningLimit: 1000,
+  },
+  esbuild: {
+    drop: mode === 'production' ? ['console', 'debugger'] : [],
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom'],
