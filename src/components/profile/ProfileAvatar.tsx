@@ -21,7 +21,7 @@ const ProfileAvatar = ({ size = "md", showUploadButton = false, userId }: Profil
   const sizeClasses = {
     sm: "h-8 w-8",
     md: "h-10 w-10", 
-    lg: "h-20 w-20"
+    lg: "h-32 w-32"
   };
 
   useEffect(() => {
@@ -118,7 +118,11 @@ const ProfileAvatar = ({ size = "md", showUploadButton = false, userId }: Profil
   return (
     <div className="relative">
       <Avatar className={sizeClasses[size]}>
-        <AvatarImage src={avatarUrl || undefined} alt={displayName || "Profile"} />
+        <AvatarImage 
+          src={avatarUrl || undefined} 
+          alt={displayName || "Profile"}
+          className="object-cover"
+        />
         <AvatarFallback>
           {avatarUrl ? <User className="h-4 w-4" /> : getInitials()}
         </AvatarFallback>
