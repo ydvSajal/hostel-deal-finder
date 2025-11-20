@@ -797,9 +797,10 @@ function createBallpit(canvas: HTMLCanvasElement, config: any = {}): CreateBallp
   const intersectionPoint = new Vector3();
   let isPaused = false;
 
-  canvas.style.touchAction = 'none';
+  canvas.style.touchAction = 'pan-y pinch-zoom';
   canvas.style.userSelect = 'none';
   (canvas.style as any).webkitUserSelect = 'none';
+  canvas.style.pointerEvents = 'none';
 
   const pointerData = createPointerData({
     domElement: canvas,
