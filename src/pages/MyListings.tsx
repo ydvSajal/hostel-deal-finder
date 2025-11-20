@@ -159,29 +159,31 @@ const MyListings = () => {
       </Helmet>
       <Navbar />
       <div className="flex-1 container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
             <Store className="h-8 w-8 text-[hsl(var(--brand))]" />
             <div>
-              <h1 className="text-3xl font-bold">My Listings</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold">My Listings</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 Manage your {listings.length} listing{listings.length !== 1 ? 's' : ''}
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-row gap-2 w-full sm:w-auto">
             <Button
               variant="outline"
               onClick={() => loadUserListings()}
               disabled={loading}
+              className="flex-1 sm:flex-initial"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
+              <RefreshCw className={`h-4 w-4 sm:mr-2 ${loading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
             </Button>
-            <Link to="/sell">
-              <Button variant="successGradient">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Listing
+            <Link to="/sell" className="flex-1 sm:flex-initial">
+              <Button variant="successGradient" className="w-full">
+                <Plus className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Create Listing</span>
+                <span className="sm:hidden">Create</span>
               </Button>
             </Link>
           </div>
