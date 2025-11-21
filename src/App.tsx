@@ -23,6 +23,7 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const EmailConfirmed = lazy(() => import("./pages/EmailConfirmed"));
 const Profile = lazy(() => import("./pages/Profile"));
 const MyListings = lazy(() => import("./pages/MyListings"));
+const Preview = lazy(() => import("./pages/Preview"));
 
 // Loading component
 const PageLoader = () => (
@@ -69,6 +70,7 @@ const App: React.FC = () => {
                   <Route path="/email-confirmed" element={<EmailConfirmed />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/my-listings" element={<MyListings />} />
+                  <Route path="/preview" element={<Preview />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
