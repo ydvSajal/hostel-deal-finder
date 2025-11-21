@@ -22,7 +22,6 @@ const MobileFrame: React.FC<{ src: string }> = ({ src }) => {
 const Preview = () => {
   const origin = (typeof window !== 'undefined' && window.location.origin) ? window.location.origin : 'https://bu-basket.com';
   const targetUrl = useMemo(() => `${origin}`, [origin]);
-  const qrUrl = useMemo(() => `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(targetUrl)}`, [targetUrl]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background/90 via-pink-50 to-background flex flex-col">
@@ -49,7 +48,7 @@ const Preview = () => {
 
             <div className="flex flex-col items-center gap-6">
               <div className="p-6 rounded-2xl bg-card/90 shadow-lg border border-border/50 w-full flex flex-col items-center gap-4 animate-fade-in">
-                <img src={qrUrl} alt="QR code" className="w-56 h-56 rounded-lg shadow" />
+                <img src="/qr.png" alt="QR code" className="w-64 h-64 rounded-lg shadow" />
 
                 <div className="text-center">
                   <h3 className="font-semibold text-lg">Scan to Open</h3>
@@ -57,7 +56,7 @@ const Preview = () => {
                 </div>
 
                 <div className="w-full flex gap-3">
-                  <a href={qrUrl} target="_blank" rel="noreferrer" download="bu-basket-qr.png" className="flex-1">
+                  <a href="/qr.png" download="bu-basket-qr.png" className="flex-1">
                     <Button variant="outline" className="w-full">Download QR</Button>
                   </a>
                   <a href={targetUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
