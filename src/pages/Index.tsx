@@ -47,7 +47,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-atmospheric overflow-x-hidden overflow-y-auto">
+    <div className="flex flex-col h-screen bg-atmospheric overflow-x-hidden overflow-hidden">
       <Helmet>
         <title>BU_Basket — Campus Marketplace for BU Students | Buy, Sell & Borrow</title>
         <meta name="description" content="BU_Basket is the trusted student marketplace for BU campus. Buy, sell, and borrow textbooks, electronics, furniture, and daily essentials. Safe transactions with verified college email. Join 1000+ BU students today!" />
@@ -77,13 +77,13 @@ const Index = () => {
         <script type="application/ld+json">{JSON.stringify(breadcrumbData)}</script>
       </Helmet>
       <Navbar />
-      <main className="overflow-y-auto">
+      <main className="flex-1 overflow-y-auto scroll-smooth">
         <Hero />
         <Features />
         <HowItWorks />
         {!loading && (isAuthenticated ? <WelcomeBack /> : <CTAJoin />)}
+        <Footer />
       </main>
-      <Footer />
     </div>
   );
 };

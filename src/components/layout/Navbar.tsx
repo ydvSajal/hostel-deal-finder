@@ -124,40 +124,43 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-sm">
-      <nav className="mx-auto flex h-16 md:h-18 max-w-7xl items-center justify-between px-4 md:px-6">
-        <Link to="/" className="flex items-center gap-2 md:gap-3">
-          <ShoppingBasket className="h-6 w-6 md:h-7 md:w-7 text-[hsl(var(--brand))]" aria-hidden />
-          <span className="text-lg md:text-xl font-bold tracking-tight text-gradient-primary">BU_Basket</span>
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+      <nav className="mx-auto flex h-12 md:h-14 max-w-7xl items-center justify-between px-4 md:px-6">
+        <Link to="/" className="flex items-center gap-1.5 md:gap-2 group">
+          <div className="relative">
+            <ShoppingBasket className="h-4 w-4 md:h-5 md:w-5 text-brand transition-transform group-hover:scale-110 duration-200" aria-hidden />
+            <div className="absolute inset-0 bg-brand/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+          </div>
+          <span className="text-base md:text-lg font-bold tracking-tight text-gradient-primary">BU_Basket</span>
         </Link>
 
-        <div className="hidden items-center gap-6 md:flex">
-          <NavLink to="/listings" className={({ isActive }) => `text-base font-medium ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>Browse</NavLink>
+        <div className="hidden items-center gap-0.5 md:flex">
+          <NavLink to="/listings" className={({ isActive }) => `px-2.5 py-1.5 text-xs md:text-sm font-medium rounded-lg transition-all duration-200 ${isActive ? "text-foreground bg-accent" : "text-muted-foreground hover:text-foreground hover:bg-accent/50"}`}>Browse</NavLink>
           {user && (
             <>
-              <NavLink to="/conversations" className={({ isActive }) => `relative flex items-center gap-1.5 text-base font-medium ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                <MessageCircle className="h-5 w-5" />
+              <NavLink to="/conversations" className={({ isActive }) => `relative flex items-center gap-1.5 px-2.5 py-1.5 text-xs md:text-sm font-medium rounded-lg transition-all duration-200 ${isActive ? "text-foreground bg-accent" : "text-muted-foreground hover:text-foreground hover:bg-accent/50"}`}>
+                <MessageCircle className="h-3.5 w-3.5 md:h-4 md:w-4" />
                 Messages
                 {unreadCount > 0 && (
-                  <Badge variant="destructive" className="text-xs px-1.5 py-0.5 min-w-[1.25rem] h-5">
+                  <Badge variant="destructive" className="text-[9px] md:text-[10px] px-1 py-0 min-w-[1rem] h-3.5 font-semibold">
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </Badge>
                 )}
               </NavLink>
-              <NavLink to="/my-listings" className={({ isActive }) => `flex items-center gap-1.5 text-base font-medium ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                <Store className="h-5 w-5" />
+              <NavLink to="/my-listings" className={({ isActive }) => `flex items-center gap-1.5 px-2.5 py-1.5 text-xs md:text-sm font-medium rounded-lg transition-all duration-200 ${isActive ? "text-foreground bg-accent" : "text-muted-foreground hover:text-foreground hover:bg-accent/50"}`}>
+                <Store className="h-3.5 w-3.5 md:h-4 md:w-4" />
                 My Listings
               </NavLink>
             </>
           )}
         </div>
 
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-1.5 md:gap-2">
           {/* Mobile Menu */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="md:hidden hover:bg-accent h-8 w-8">
+                <Menu className="h-4 w-4" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
@@ -216,11 +219,11 @@ const Navbar = () => {
 
           {user ? (
             <>
-              <Link to="/sell"><Button variant="successGradient" size="default" className="hidden md:inline-flex font-medium">Sell</Button></Link>
+              <Link to="/sell" className="hidden md:block"><Button variant="successGradient" size="sm" className="font-medium shadow-lg shadow-success/20 hover:shadow-xl hover:shadow-success/30 transition-all duration-200 h-8 text-xs">Sell</Button></Link>
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 md:h-10 md:w-10 rounded-full">
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full hover:bg-accent transition-colors duration-200">
                     <ProfileAvatar size="sm" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -252,8 +255,8 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link to="/sell"><Button variant="successGradient" size="sm" className="hidden md:inline-flex">Sell</Button></Link>
-              <Link to="/login"><Button variant="outline" size="sm">Login</Button></Link>
+              <Link to="/sell" className="hidden md:block"><Button variant="successGradient" size="sm" className="shadow-lg shadow-success/20 hover:shadow-xl hover:shadow-success/30 transition-all duration-200 h-8 text-xs">Sell</Button></Link>
+              <Link to="/login"><Button variant="outline" size="sm" className="border-border/60 hover:bg-accent transition-colors duration-200 h-8 text-xs">Login</Button></Link>
             </>
           )}
         </div>
